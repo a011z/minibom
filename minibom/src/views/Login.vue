@@ -6,7 +6,9 @@ import { ElMessage } from 'element-plus';
 const isRegister = ref(false)
 //定义数据模型
 const registerData = ref({
-    username:'',
+    name:'',
+    telephone:'',
+    email:'',
     password:'',
     rePassword:''
 })
@@ -22,19 +24,36 @@ const checkRePassword = (rule,value,callback)=>{
 }
 
 //定义表单校验规则
-const rules = {
+const rules = ({
     username:[
         {required:true,message: '请输入用户名',trigger:'blur'},
-        {min: 5, max: 16, message: '长度为5~16位非空字符', trigger: 'blur'}
+        {partern: /^[a-zA-Z0-9]{6,32}$/,
+            min: 6, max: 32, message: '长度为6~32位非空字符', trigger: 'blur'}
+
+    ],
+    telephone:[
+        {required:true,message: '请输入电话号码',trigger:'blur'},
+        {partern:/^1[3-9]\\d{9}$/,
+            trigger:'blur'
+        }
+    ],
+    email:[
+        {required:true,message:"请输入邮箱"},
+        {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,
+            trigger:'blur'
+        }
     ],
     password:[
         {required:true,message: '请输入密码',trigger:'blur'},
-        {min: 5, max: 16, message: '长度为5~16位非空字符', trigger: 'blur'}
+        {partern: /^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,32}$/,
+        min: 8, max: 32, message: '长度为8~32位非空字符', trigger: 'blur'}
     ],
     rePassword:[
         {validator:checkRePassword,trigger: 'blur'}
     ]
-}
+
+
+})
 
 //调用后台接口完成注册
 import {userRegisterService,  userLoginService }from '@/api/user.js'
@@ -47,7 +66,7 @@ const register = async()=>{
     // alert('注册失败');
 
     // }
-    ElMessage.success(result.msg?result.msg : '注册成功')
+    //ElMessage.success(result.msg?result.msg : '注册成功')
 
 
 
@@ -75,6 +94,8 @@ const login = async ()=>{
 const clearRegisterData =() =>{
     registerData.value={
         username:'',
+        telephone:'',
+        email:'',
         password:'',
         rePassword:''
     }
@@ -93,11 +114,17 @@ const clearRegisterData =() =>{
                 <el-form-item prop="username">
                     <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="registerData.username"></el-input>
                 </el-form-item>
+                <el-form-item prop="telephone">
+                    <el-input :prefix-icon="User" placeholder="请输入电话号码" v-model="registerData.telephone"></el-input>
+                </el-form-item>
+                <el-form-item prop="email">
+                    <el-input :prefix-icon="User" placeholder="请输入邮箱" v-model="registerData.email"></el-input>
+                </el-form-item>
                 <el-form-item prop="password">
                     <el-input :prefix-icon="Lock" type="password" placeholder="请输入密码" v-model="registerData.password"></el-input>
                 </el-form-item>
                 <el-form-item prop="rePassword">
-                    <el-input :prefix-icon="Lock" type="password" placeholder="请输入再次密码" v-model="registerData.rePassword"></el-input>
+                    <el-input :prefix-icon="Lock" type="password" placeholder="请再次输入密码" v-model="registerData.rePassword"></el-input>
                 </el-form-item>
                 <!-- 注册按钮 -->
                 <el-form-item>
