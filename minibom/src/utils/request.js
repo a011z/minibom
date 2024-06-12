@@ -15,6 +15,7 @@ instance.interceptors.response.use(
         if(result.data.code===123||result.data.code===116){
         return result.data;
         }
+        
         ElMessage.error(result.data.message?result.data.message:'服务异常')
         return Promise.reject(result.data)
     },
