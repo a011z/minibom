@@ -63,7 +63,7 @@ import avatar from '@/assets/default.png'
         <el-container>
             <!-- 头部区域 -->
             <el-header>
-                <div>黑马程序员：<strong>东哥</strong></div>
+                <div>：<strong>4</strong></div>
                 <el-dropdown placement="bottom-end">
                     <span class="el-dropdown__box">
                         <el-avatar :src="avatar" />
@@ -88,7 +88,7 @@ import avatar from '@/assets/default.png'
                 </div>
             </el-main>
             <!-- 底部区域 -->
-            <el-footer>大事件 ©2023 Created by 黑马程序员</el-footer>
+            <el-footer>第四组</el-footer>
         </el-container>
     </el-container>
 </template>
@@ -102,7 +102,7 @@ import avatar from '@/assets/default.png'
 
         &__logo {
             height: 120px;
-            background: url('@/assets/logo.png') no-repeat center / 120px auto;
+            background: url('@/assets/logo3.png') no-repeat center / 120px auto;
         }
 
         .el-menu {
