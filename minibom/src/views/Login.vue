@@ -36,30 +36,21 @@ const rules = ({
     ],
     telephone:[
         {required:true,message: '请输入电话号码',trigger:'blur'},
-        {partern:/^1[3-9]\\d{9}$/,
-            trigger:'blur'
-        }
+        {partern:/^1[3-9]\\d{9}$/,trigger:'blur'}
     ],
     email:[
         {required:true,message:"请输入邮箱"},
-        {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,
-            trigger:'blur'
-        }
         {partern: /^[a-zA-Z0-9]{6,32}$/,
             min: 6, max: 32, message: '长度为6~32位非空字符', trigger: 'blur'}
 
     ],
     telephone:[
         {required:true,message: '请输入电话号码',trigger:'blur'},
-        {partern:/^1[3-9]\\d{9}$/,
-            trigger:'blur'
-        }
+        {partern:/^1[3-9]\\d{9}$/,trigger:'blur'}
     ],
     email:[
         {required:true,message:"请输入邮箱"},
-        {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,
-            trigger:'blur'
-        }
+        {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,trigger:'blur'}
     ],
     password:[
         {required:true,message: '请输入密码',trigger:'blur'},
@@ -78,12 +69,12 @@ const register = async()=>{
         const dataToRegister =registerData.value;
         if (dataToRegister.password) {
             // 使用 SHA-256 算法对密码进行哈希加密
-            const hashedPassword = CryptoJS.SHA256(dataToRegister.password).toString();
+            const hashedPassword = CryptoJs.SHA256(dataToRegister.password).toString();
             
             // 用加密后的密码替换原始密码
             dataToRegister.password = hashedPassword;
             if(dataToRegister.rePassword){
-                const hashedrePassword = CryptoJS.SHA256(dataToRegister.repassword).toString();
+                const hashedrePassword = CryptoJs.SHA256(dataToRegister.repassword).toString();
             
                 // 用加密后的密码替换原始密码
                 dataToRegister.repassword = hashedrePassword;
@@ -98,9 +89,9 @@ const register = async()=>{
     //     alert(result.msg?result.msg : '注册成功');
     // }else{
     // alert('注册失败');
-
     // }
-    //ElMessage.success(result.msg?result.msg : '注册成功')
+    ElMessage.success(result.msg?result.msg : '注册成功')
+    
 
     }catch(error){
         ElMessage.error('注册失败');
@@ -111,8 +102,10 @@ const register = async()=>{
 //绑定数据，复用注册表单的数据模型
 //表单数据校验
 //登录函数
+import{useTokenStore} from'@/stores/token.js'
 import{useRouter} from 'vue-router'
 const router =useRouter()
+const tokenStore=useTokenStore();
 const login = async ()=>{
     try{
         const dataToLogin=registerData.value;
@@ -123,13 +116,14 @@ const login = async ()=>{
 
     
     //调用接口，完成登录
-    let result = await userLoginService(registerData.value);
+    let result = await userLoginService(dataToRegister.value);
     // if(result.code===0){
     //     alert(result.msg?result.msg:'登录成功')
     // }else{
     //     alert('登录失败')
     // }
     ElMessage.success(result.msg?result.msg : '登录成功')
+    tokenStore.setToken(result.data)
     //路由完成跳转
     router.push('/')
     }catch{
@@ -160,7 +154,7 @@ const clearRegisterData =() =>{
                     <h1>注册</h1>
                 </el-form-item>
                 <el-form-item prop="username">
-                    <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="registerData.username"></el-input>
+                    <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="registerData.name"></el-input>
                 </el-form-item>
                 <el-form-item prop="telephone">
                     <el-input :prefix-icon="User" placeholder="请输入电话号码" v-model="registerData.telephone"></el-input>
@@ -192,7 +186,7 @@ const clearRegisterData =() =>{
                     <h1>登录</h1>
                 </el-form-item>
                 <el-form-item>
-                    <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="registerData.username"></el-input>
+                    <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="registerData.name"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-input name="password" :prefix-icon="Lock" type="password" placeholder="请输入密码" v-model="registerData.password"></el-input>
