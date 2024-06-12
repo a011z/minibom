@@ -45,6 +45,21 @@ const rules = ({
         {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,
             trigger:'blur'
         }
+        {partern: /^[a-zA-Z0-9]{6,32}$/,
+            min: 6, max: 32, message: '长度为6~32位非空字符', trigger: 'blur'}
+
+    ],
+    telephone:[
+        {required:true,message: '请输入电话号码',trigger:'blur'},
+        {partern:/^1[3-9]\\d{9}$/,
+            trigger:'blur'
+        }
+    ],
+    email:[
+        {required:true,message:"请输入邮箱"},
+        {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,
+            trigger:'blur'
+        }
     ],
     password:[
         {required:true,message: '请输入密码',trigger:'blur'},
@@ -85,7 +100,7 @@ const register = async()=>{
     // alert('注册失败');
 
     // }
-    ElMessage.success(result.msg?result.msg : '注册成功')
+    //ElMessage.success(result.msg?result.msg : '注册成功')
 
     }catch(error){
         ElMessage.error('注册失败');
