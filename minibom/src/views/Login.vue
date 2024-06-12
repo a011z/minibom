@@ -63,12 +63,12 @@ const register = async()=>{
         const dataToRegister =registerData.value;
         if (dataToRegister.password) {
             // 使用 SHA-256 算法对密码进行哈希加密
-            const hashedPassword = CryptoJS.SHA256(dataToRegister.password).toString();
+            const hashedPassword = CryptoJs.SHA256(dataToRegister.password).toString();
             
             // 用加密后的密码替换原始密码
             dataToRegister.password = hashedPassword;
             if(dataToRegister.rePassword){
-                const hashedrePassword = CryptoJS.SHA256(dataToRegister.repassword).toString();
+                const hashedrePassword = CryptoJs.SHA256(dataToRegister.repassword).toString();
             
                 // 用加密后的密码替换原始密码
                 dataToRegister.repassword = hashedrePassword;
