@@ -36,15 +36,11 @@ const rules = ({
     ],
     telephone:[
         {required:true,message: '请输入电话号码',trigger:'blur'},
-        {partern:/^1[3-9]\\d{9}$/,
-            trigger:'blur'
-        }
+        {partern:/^1[3-9]\\d{9}$/,trigger:'blur'}
     ],
     email:[
         {required:true,message:"请输入邮箱"},
-        {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,
-            trigger:'blur'
-        }
+        {partern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,trigger:'blur'}
     ],
     password:[
         {required:true,message: '请输入密码',trigger:'blur'},
