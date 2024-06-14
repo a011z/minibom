@@ -88,7 +88,7 @@
 
             <!--创建模块-->
             <!-- add window -->
-            <el-dialog title="" :visible.sync="showAdd">
+            <el-dialog title="" v-model:visible="showAdd">
               <el-form :model="addform">
                 <el-tabs type="border-card">
                     <el-tab-pane label="基本属性">
