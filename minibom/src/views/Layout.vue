@@ -7,9 +7,12 @@ import {
     Crop,
     EditPen,
     SwitchButton,
-    CaretBottom
+    CaretBottom,
+    House
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
+import { BAR_MAP, buttonEmits } from 'element-plus';
+import _MessageBox from 'element-plus/es/components/message-box/index.mjs';
 </script>
 
 <template>
@@ -21,15 +24,27 @@ import avatar from '@/assets/default.png'
                 router>
                 <el-menu-item >
                     <el-icon>
+                        <House />
+                    </el-icon>
+                    <span>首页</span>
+                </el-menu-item>
+                <el-menu-item >
+                    <el-icon>
                         <Management />
                     </el-icon>
-                    <span>文章分类</span>
+                    <span>属性管理</span>
                 </el-menu-item>
                 <el-menu-item >
                     <el-icon>
                         <Promotion />
                     </el-icon>
-                    <span>文章管理</span>
+                    <span>分类管理</span>
+                </el-menu-item>
+                <el-menu-item >
+                    <el-icon>
+                        <Management />
+                    </el-icon>
+                    <span>Part&BOM管理</span>
                 </el-menu-item>
                 <el-sub-menu >
                     <template #title>
@@ -86,6 +101,12 @@ import avatar from '@/assets/default.png'
                 <div style="width: 1290px; height: 570px;border: 1px solid red;">
                     内容展示区
                 </div>
+                <!-- <el-table :data="tableData" style="width: 100%">
+                    <el-table-column prop="date" label="日期" width="180"></el-table-column>
+                    <el-table-column prop="name" label="姓名" width="180"></el-table-column>
+                    <el-table-column prop="address" label="地址"></el-table-column>
+                </el-table> --><!--表格示例-->
+
             </el-main>
             <!-- 底部区域 -->
             <el-footer>第四组</el-footer>
