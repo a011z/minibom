@@ -117,12 +117,9 @@ const login = async ()=>{
     // }
     //ElMessage.success(result.msg?result.msg : '登录成功')
     ElMessage.success(result.message)
-    console.log('测试登录')
     tokenStore.setToken(result.data)
-    console.log('测试登录333')
-
     //路由完成跳转
-     router.push('/')
+     router.push('/layout')
     }catch{
 
         ElMessage.error('登录失败');
