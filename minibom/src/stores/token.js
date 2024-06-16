@@ -7,7 +7,7 @@ export const useTokenStore =defineStore('token',()=>{
     const token=ref('')
 
     const setToken=(newToken)=>{
-        token.value=newToken
+        token.value=newtoken
     }
 
     const removeToken=()=>{

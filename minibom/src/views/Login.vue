@@ -8,12 +8,11 @@ const isRegister = ref(false)
 //定义数据模型
 const registerData = ref({
     name:'',
-    password:'',
-    email:'',
     telephone:'',
+    email:'',
+    password:'',
     rePassword:''
 })
-
 //加密数据模型
 
 //校验密码的函数
@@ -29,7 +28,7 @@ const checkRePassword = (rule,value,callback)=>{
 
 //定义表单校验规则
 const rules = ({
-    name:[
+    username:[
         {required:true,message: '请输入用户名',trigger:'blur'},
         {pattern: /^[a-zA-Z0-9]{6,32}$/,
             min: 6, max: 32, message: '长度为6~32位非空字符', trigger: 'blur'}
@@ -45,6 +44,14 @@ const rules = ({
             min: 6, max: 32, message: '长度为6~32位非空字符', trigger: 'blur'}
 
     ],
+    telephone:[
+        {required:true,message: '请输入电话号码',trigger:'blur'},
+        {pattern:/^1[3-9]\\d{9}$/,trigger:'blur'}
+    ],
+    email:[
+        {required:true,message:"请输入邮箱"},
+        {pattern:/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/,trigger:'blur'}
+    ],
     password:[
         {required:true,message: '请输入密码',trigger:'blur'},
         {pattern: /^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,32}$/,
@@ -58,8 +65,8 @@ const rules = ({
 //调用后台接口完成注册
 import {userRegisterService,  userLoginService }from '@/api/user.js'
 const register = async()=>{
-    //try{
-        const dataToRegister = Object.assign({}, registerData.value);
+    try{
+        const dataToRegister =registerData.value;
         if (dataToRegister.password) {
             // 使用 SHA-256 算法对密码进行哈希加密
             const hashedPassword = CryptoJs.SHA256(dataToRegister.password).toString();
@@ -67,10 +74,10 @@ const register = async()=>{
             // 用加密后的密码替换原始密码
             dataToRegister.password = hashedPassword;
             if(dataToRegister.rePassword){
-                const hashedrePassword = CryptoJs.SHA256(dataToRegister.rePassword).toString();
+                const hashedrePassword = CryptoJs.SHA256(dataToRegister.repassword).toString();
             
                 // 用加密后的密码替换原始密码
-                dataToRegister.rePassword = hashedrePassword;
+                dataToRegister.repassword = hashedrePassword;
             }
         }
     
@@ -83,12 +90,12 @@ const register = async()=>{
     // }else{
     // alert('注册失败');
     // }
-    ElMessage.success(result.message)
+    ElMessage.success(result.msg?result.msg : '注册成功')
     
 
-    // }catch(error){
-    //     ElMessage.error('注册失败');
-    // }
+    }catch(error){
+        ElMessage.error('注册失败');
+    }
 
 }
 
@@ -103,13 +110,13 @@ const login = async ()=>{
     try{
         const dataToLogin=registerData.value;
         if(dataToLogin.password){
-            const hashedPassword = CryptoJs.SHA256(dataToLogin.password).toString();
-            dataToLogin.password = hashedPassword;
+            const hashedPassword = CryptoJS.SHA256(dataToLogin.password).toString();
+            dataToRegister.password = hashedPassword;
         }
 
     
     //调用接口，完成登录
-    let result = await userLoginService(dataToLogin);
+    let result = await userLoginService(dataToRegister.value);
     // if(result.code===0){
     //     alert(result.msg?result.msg:'登录成功')
     // }else{
@@ -122,18 +129,18 @@ const login = async ()=>{
      router.push('/layout')
     }catch{
 
-        ElMessage.error('登录失败');
+        ElMessage.error('注册失败');
     }
 }
 
 //定义函数，清空数据模型的数据
 const clearRegisterData =() =>{
     registerData.value={
-        name:'',
+        username:'',
         telephone:'',
         email:'',
         password:'',
-    //    rePassword:''
+        rePassword:''
     }
 }
 </script>
@@ -147,7 +154,7 @@ const clearRegisterData =() =>{
                 <el-form-item>
                     <h1>注册</h1>
                 </el-form-item>
-                <el-form-item prop="name">
+                <el-form-item prop="username">
                     <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="registerData.name"></el-input>
                 </el-form-item>
                 <el-form-item prop="telephone">
