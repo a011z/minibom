@@ -6,8 +6,9 @@ import LayoutVue from '@/views/Layout.vue';
 
 //路由关系
 const routes =[
+    {path:'/layout',component:LayoutVue},
     {path:'/login',component:LoginVue},
-    {path:'/',component:LayoutVue}
+    {path:'/',redirect:'/login'}
 ]
 
 //路由器
