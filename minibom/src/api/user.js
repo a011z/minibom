@@ -4,18 +4,18 @@ import request from '@/utils/request.js'
 //
 export const userRegisterService = (registerData)=>{
     //借助于UrlSearchParams
-    const params = new URLSearchParams()
-    for(let key in registerData){
-        params.append(key,registerData[key])
-    }
-    return request.post('/user/register',params)
+    // const params = new URLSearchParams()
+    // for(let key in registerData){
+    //     params.append(key,registerData[key])
+    // }
+    return request.post('/user/register',registerData)
 }
 
 //提供调用登录接口的函数
 export const userLoginService =(loginData)=>{
-    const params =new URLSearchParams();
-    for(let key in loginData){
-        params.append(key,loginData[key])
-    }
-    return request.post('/user/login',params)
+    // const params =new URLSearchParams();
+    // for(let key in loginData){
+    //     params.append(key,loginData[key])
+    // }
+    return request.post('/user/login',loginData)
 }
