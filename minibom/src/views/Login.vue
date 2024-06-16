@@ -31,23 +31,23 @@ const checkRePassword = (rule,value,callback)=>{
 const rules = ({
     name:[
         {required:true,message: '请输入用户名',trigger:'blur'},
-        {partern: /^[a-zA-Z0-9]{6,32}$/,
+        {pattern: /^[a-zA-Z0-9]{6,32}$/,
             min: 6, max: 32, message: '长度为6~32位非空字符', trigger: 'blur'}
 
     ],
     telephone:[
         {required:true,message: '请输入电话号码',trigger:'blur'},
-        {partern:/^1[3-9]\\d{9}$/,trigger:'blur'}
+        {pattern:/^1[3-9]\\d{9}$/,trigger:'blur'}
     ],
     email:[
         {required:true,message:"请输入邮箱"},
-        {partern: /^[a-zA-Z0-9]{6,32}$/,
+        {pattern: /^[a-zA-Z0-9]{6,32}$/,
             min: 6, max: 32, message: '长度为6~32位非空字符', trigger: 'blur'}
 
     ],
     password:[
         {required:true,message: '请输入密码',trigger:'blur'},
-        {partern: /^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,32}$/,
+        {pattern: /^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,32}$/,
         min: 8, max: 32, message: '长度为8~32位非空字符', trigger: 'blur'}
     ],
     rePassword:[
