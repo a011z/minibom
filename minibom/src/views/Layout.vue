@@ -25,8 +25,8 @@
               </el-form-item>
   
               <el-form-item>
-                <el-button type="primary" style="margin-left: 50px;" @click="onSubmit">查询</el-button>
-                <el-button type="danger" style="margin-left: 50px;" @click="showAdd = true">创建</el-button>
+                <el-button type="primary" plain style="margin-left: 50px;" @click="onSubmit">查询</el-button>
+                <el-button type="danger" plain style="margin-left: 50px;" @click="showAdd = true">创建</el-button>
               </el-form-item>
             </el-form>
   
@@ -46,7 +46,7 @@
             </el-table>
   
             <!-- 创建模块 -->
-            <el-dialog v-model:visible="showAdd" title="创建新的部件">
+            <el-dialog v-model ="showAdd" title="创建新的部件">
               <el-form :model="addForm">
                 <el-tabs type="border-card">
                   <el-tab-pane label="基本属性">
@@ -88,7 +88,48 @@
                       </el-collapse-item>
                     </el-collapse>
                   </el-tab-pane>
-                  <el-tab-pane label="BOM清单">BOM清单</el-tab-pane>
+                  <el-tab-pane label="BOM清单">
+                    <div>
+                      <el-button plain @click="subPart = true">新增子项</el-button>
+                      <el-button plain >查看BOM清单</el-button>
+                      <el-button plain>查看父项</el-button>
+                    </div>
+                    <!--新增子项弹窗-->
+                    <el-dialog v-model="subPart" title="添加部件" width="70%">
+                      <el-form :model="searchForm">
+                        <el-form-item label="按编码查询">
+                          <el-input v-model="searchForm.partNumber" placeholder="按编码查询"></el-input>
+                        </el-form-item>
+                        <!-- <el-form-item style="margin-left: 100px;" label="按部件名称"> -->
+                        <el-form-item  label="按部件名称">
+                          <el-input v-model="searchForm.partName" placeholder="按部件名称"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                          <el-button type="primary" style="margin-left: 50px;" >搜索</el-button>
+                          <el-button type="danger" style="margin-left: 50px;">重置</el-button>
+                        </el-form-item>
+                        <el-table :data="tableData"  style="margin-top: 0px;">
+                          <el-table-column prop="partNumber" label="编码" width="200"></el-table-column>
+                          <el-table-column prop="partName" label="名称" width="200"></el-table-column>
+                          <el-table-column prop="version" label="数量" width="200"></el-table-column>
+                          <el-table-column prop="partType" label="位号" width="200"></el-table-column>
+                          <el-table-column prop="businessCode" label="" width="200"></el-table-column>
+                        </el-table>
+                      </el-form>
+                      <template #footer>
+                        <span class= "dialog-footer">
+                          <el-button plain>确认</el-button>
+                          <el-button type="danger" @click="subPart =false">取消</el-button>
+                        </span>
+                      </template>
+
+                    </el-dialog>
+
+
+
+                    
+
+                  </el-tab-pane>
                   <el-tab-pane label="版本管理">版本管理</el-tab-pane>
                 </el-tabs>
               </el-form>
@@ -137,6 +178,7 @@
       const activeNames = ref(['1']);
       const dialogFormVisible = ref(false);
       const showAdd = ref(false);
+      const subPart =ref(false);
   
       const searchForm = reactive({
         partNumber: '',
@@ -209,7 +251,9 @@
       onSubmit,
       editRow,
       deleteRow,
-      addPart
+      addPart,
+      subPart
+      
     };
   }
 };
