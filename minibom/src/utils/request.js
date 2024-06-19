@@ -8,23 +8,23 @@ import { ElMessage } from 'element-plus';
 const baseURL = '/api';
 const instance = axios.create({baseURL})
 
-import { useTokenStore } from '@/stores/token.js';
-//添加请求拦截器
-instance.interceptors.request.use(
-    (config)=>{
-        //添加token
-        const tokenStore=useTokenStore();
-        if(tokenStore){
-            config.headers.Authorization=tokenStore.token
-        }
-        return config;
-    },
-    (err)=>{
+// import { useTokenStore } from '@/stores/token.js';
+// //添加请求拦截器
+// instance.interceptors.request.use(
+//     (config)=>{
+//         //添加token
+//         const tokenStore=useTokenStore();
+//         if(tokenStore){
+//             config.headers.Authorization=tokenStore.token
+//         }
+//         return config;
+//     },
+//     (err)=>{
 
-        Promise.reject(err)
+//         Promise.reject(err)
 
-    }
-)
+//     }
+// )
 // import { useRouter } from 'vue-router';
 // const router=useRouter();
 // import router from '@/router/index.js';

@@ -110,12 +110,13 @@ const login = async ()=>{
     
     //调用接口，完成登录
     let result = await userLoginService(dataToLogin);
-    // if(result.code===0){
-    //     alert(result.msg?result.msg:'登录成功')
-    // }else{
-    //     alert('登录失败')
-    // }
-    //ElMessage.success(result.msg?result.msg : '登录成功')
+    if(result.code===0){
+        alert(result.msg?result.msg:'登录成功')
+    }else{
+        alert('登录失败')
+    }
+    ElMessage.success(result.msg?result.msg : '登录成功')
+    console.log(result.message)
     ElMessage.success(result.message)
     tokenStore.setToken(result.data)
     //路由完成跳转

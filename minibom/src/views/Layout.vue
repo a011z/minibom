@@ -7,8 +7,9 @@
           <el-aside width="230px" style="border: 1px solid #eee">
             <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
               <el-menu :default-openeds="['1', '2']">
-                <el-menu-item index="1-1"><router-link to="/Emp">部件管理</router-link></el-menu-item>
-                <el-menu-item index="1-2"><router-link to="/res">BOM管理</router-link></el-menu-item>
+                <el-menu-item index="1-1"><router-link to="/part">部件管理</router-link></el-menu-item>
+                <el-menu-item index="1-2"><router-link to="/bom">BOM管理</router-link></el-menu-item>
+                <el-menu-item index="1-3"><router-link to="/attribute" title="属性管理">属性管理</router-link></el-menu-item>
               </el-menu>
             </el-aside>
           </el-aside>
@@ -88,6 +89,8 @@
                       </el-collapse-item>
                     </el-collapse>
                   </el-tab-pane>
+
+
                   <el-tab-pane label="BOM清单">
                     <div>
                       <el-button plain @click="subPart = true">新增子项</el-button>
@@ -130,7 +133,25 @@
                     
 
                   </el-tab-pane>
-                  <el-tab-pane label="版本管理">版本管理</el-tab-pane>
+                  <el-tab-pane label="版本管理">
+                    <el-form :model="versionSearch">
+                      <el-form-item label="按编码查询">
+                          <el-input v-model="versionSearch.partId" placeholder="按编码查询"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <el-form-item>
+                          <el-button type="primary" style="margin-left: 50px;" @click="SeachVersionById">搜索</el-button>
+                          <el-button type="danger" style="margin-left: 50px;">重置</el-button>
+                        </el-form-item>
+                    <el-table :data="versiontable"  style="margin-top: 0px;">
+                          <el-table-column prop="partId" label="编码" width="200"></el-table-column>
+                          <el-table-column prop="partNumber" label="part号码" width="200"></el-table-column>
+                          <el-table-column prop="versionId" label="版本Id" width="200"></el-table-column>
+                          <el-table-column prop="version" label="版本" width="200"></el-table-column>
+                          <el-table-column prop="name" label="名称" width="200"></el-table-column>
+                        </el-table>
+
+                  </el-tab-pane>
                 </el-tabs>
               </el-form>
   
@@ -145,12 +166,11 @@
     </div>
   </template>
   
-  <script>
+  <script setup>
   import { ref, reactive } from 'vue';
   import axios from 'axios';
-  
-  export default {
-    setup() {
+  import {VersionService}  from '@/api/article.js'
+
       // 下拉选项
       const options = ref([
         { value: '选项1', label: 'PCS' },
@@ -184,6 +204,10 @@
         partNumber: '',
         partName: ''
       });
+
+      const versionSearch =reactive({
+        partId:null
+      })
   
       const addForm = reactive({
         name: '',
@@ -197,7 +221,9 @@
       });
   
       const tableData = ref([]);
+      const versiontable=ref([]);
       const formLabelWidth = '120px';
+
   
       // 方法
       const handleChange = (val) => {
@@ -233,30 +259,21 @@
         console.log(result);
         showAdd.value = false;
         // Refresh the tableData after addition
+         
       });
-    };
+      };
+      //版本管理查询函数
+      const SeachVersionById=async()=>{
+        const partId = versionSearch.partId;
+        let result=await VersionService(partId);
+        console.log(result);
+       // versiontable.value=result.data;
+      } ;
 
-    return {
-      options,
-      options1,
-      options2,
-      activeNames,
-      dialogFormVisible,
-      showAdd,
-      searchForm,
-      addForm,
-      tableData,
-      formLabelWidth,
-      handleChange,
-      onSubmit,
-      editRow,
-      deleteRow,
-      addPart,
-      subPart
-      
-    };
-  }
-};
+
+
+  
+
 </script>
 
 <style scoped>
