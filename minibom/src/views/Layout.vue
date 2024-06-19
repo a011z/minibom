@@ -7,15 +7,18 @@
         <el-aside width="230px" style="border: 1px solid #eee">
           <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
             <el-menu :default-openeds="['1', '2']">
-              <el-menu-item index="1-1"><router-link to="/Emp">部件管理</router-link></el-menu-item>
-              <el-menu-item index="1-2"><router-link to="/res">BOM管理</router-link></el-menu-item>
+              <el-menu-item index="1-1"><router-link to="/layout">部件管理</router-link></el-menu-item>
+              <el-menu-item index="1-2"><router-link to="/bom/bommanage">BOM管理</router-link></el-menu-item>
             </el-menu>
           </el-aside>
         </el-aside>
 
 
-        <!--主栏目-->>  
+        <!--主栏目-->>
         <el-main style="padding-top: 0px;">
+
+
+
           <!-- 查询表单 -->
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item label="按编码查询">
@@ -48,9 +51,10 @@
           </el-table>
 
           <!-- 创建模块 -->
-          <el-dialog v-model ="showAdd" title="创建新的部件">
+          <el-dialog v-model="showAdd" title="创建新的部件">
             <el-form :model="addForm">
               <el-tabs type="border-card">
+
 
                 <!--小窗“基本属性”-->
                 <el-tab-pane label="基本属性">
@@ -62,17 +66,20 @@
                       </el-form-item>
                       <el-form-item label="默认单位：" :label-width="formLabelWidth" required>
                         <el-select v-model="addForm.value" placeholder="请选择">
-                          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                          <el-option v-for="item in options" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
                         </el-select>
                       </el-form-item>
                       <el-form-item label="来源：" :label-width="formLabelWidth" required>
                         <el-select v-model="addForm.value1" placeholder="请选择">
-                          <el-option v-for="item in options1" :key="item.value1" :label="item.label1" :value="item.value1"></el-option>
+                          <el-option v-for="item in options1" :key="item.value1" :label="item.label1"
+                            :value="item.value1"></el-option>
                         </el-select>
                       </el-form-item>
                       <el-form-item label="装配模式：" :label-width="formLabelWidth">
                         <el-select v-model="addForm.value2" placeholder="请选择">
-                          <el-option v-for="item in options2" :key="item.value2" :label="item.label2" :value="item.value2"></el-option>
+                          <el-option v-for="item in options2" :key="item.value2" :label="item.label2"
+                            :value="item.value2"></el-option>
                         </el-select>
                       </el-form-item>
                       <el-form-item label="分类：" :label-width="formLabelWidth" required>
@@ -98,7 +105,7 @@
                 <el-tab-pane label="BOM清单">
                   <div>
                     <el-button plain @click="subPart = true">新增子项</el-button>
-                    <el-button plain  @click="bomList = true">查看BOM清单</el-button>
+                    <el-button plain @click="bomList">查看BOM清单</el-button>
                     <el-button plain>查看父项</el-button>
                   </div>
                   <!--新增子项弹窗-->
@@ -108,14 +115,14 @@
                         <el-input v-model="searchForm.partNumber" placeholder="按编码查询"></el-input>
                       </el-form-item>
                       <!-- <el-form-item style="margin-left: 100px;" label="按部件名称"> -->
-                      <el-form-item  label="按部件名称">
+                      <el-form-item label="按部件名称">
                         <el-input v-model="searchForm.partName" placeholder="按部件名称"></el-input>
                       </el-form-item>
                       <el-form-item>
-                        <el-button type="primary" style="margin-left: 50px;" >搜索</el-button>
+                        <el-button type="primary" style="margin-left: 50px;">搜索</el-button>
                         <el-button type="danger" style="margin-left: 50px;">重置</el-button>
                       </el-form-item>
-                      <el-table :data="tableData"  style="margin-top: 0px;">
+                      <el-table :data="tableData" style="margin-top: 0px;">
                         <el-table-column prop="partNumber" label="编码" width="200"></el-table-column>
                         <el-table-column prop="partName" label="名称" width="200"></el-table-column>
                         <el-table-column prop="version" label="数量" width="200"></el-table-column>
@@ -124,41 +131,37 @@
                       </el-table>
                     </el-form>
                     <template #footer>
-                      <span class= "dialog-footer">
+                      <span class="dialog-footer">
                         <el-button plain>确认</el-button>
-                        <el-button type="danger" @click="subPart =false">取消</el-button>
+                        <el-button type="danger" @click="subPart = false">取消</el-button>
                       </span>
                     </template>
 
                   </el-dialog>
 
                   <!-- 查看BOM清单弹窗 -->
-                  <el-dialog v-model="bomList" title="bom清单" width="70%">
+                  <!-- <el-dialog v-model="bomList" title="bom清单" width="70%">
 
+                    <el-table :data="tableData" style="margin-top: 0px;">
+                      <el-table-column prop="partNumber" label="编码" width="200"></el-table-column>
+                      <el-table-column prop="partName" label="名称" width="200"></el-table-column>
+                      <el-table-column label="数量" width="200"></el-table-column>
+                      <el-table-column prop="partType" label="位号" width="200"></el-table-column>
+                      <el-table-column label="操作" width="200">
 
-                      
-                    <el-table :data="tableData"  style="margin-top: 0px;">
-                        <el-table-column prop="partNumber" label="编码" width="200"></el-table-column>
-                        <el-table-column prop="partName" label="名称" width="200"></el-table-column>
-                        <el-table-column  label="数量" width="200"></el-table-column>
-                        <el-table-column prop="partType" label="位号" width="200"></el-table-column>
-                        <el-table-column  label="操作"  width="200">  
-                          <!-- <template slot-scope="scope">  
-                            <el-button type="text" @click="handleEdit(scope.row)">修改</el-button>  
-                          </template>   -->   <!--操作按钮-->
-                        </el-table-column>  
-                    </el-table>
+                      </el-table-column>
+                    </el-table> 
 
 
 
-                  </el-dialog>
+                  </el-dialog>  -->
 
 
                 </el-tab-pane>
 
-                <!--小窗“版本管理”---->  
+                <!--小窗“版本管理”---->
                 <el-tab-pane label="版本管理">
-                  版本管理  
+                  版本管理
                 </el-tab-pane>
               </el-tabs>
             </el-form>
@@ -177,6 +180,8 @@
 <script>
 import { ref, reactive } from 'vue';
 import axios from 'axios';
+import BomManage from './bom/BomManage.vue';
+import{useRouter} from 'vue-router'
 
 export default {
   setup() {
@@ -207,8 +212,21 @@ export default {
     const activeNames = ref(['1']);
     const dialogFormVisible = ref(false);
     const showAdd = ref(false);
-    const subPart =ref(false);
-    const bomList =ref(false);
+    const subPart = ref(false);
+    // const bomList = ref(false);
+
+
+    // methods:{
+
+    //   bomList=()=>{
+    //   this.$router.push('/bom/bommanage');
+    // }
+    // }
+    const router =useRouter()
+    const bomList = ()=>{
+      router.push('/bom/bommanage');
+    }
+
 
 
 
@@ -261,40 +279,44 @@ export default {
     };
 
     const addPart = () => {
-    axios.post('http://localhost:8080/ulab', addForm).then((result) => {
-      console.log(result);
-      showAdd.value = false;
-      // Refresh the tableData after addition
-    });
-  };
+      axios.post('http://localhost:8080/ulab', addForm).then((result) => {
+        console.log(result);
+        showAdd.value = false;
+        // Refresh the tableData after addition
+      });
 
-  return {
-    options,
-    options1,
-    options2,
-    activeNames,
-    dialogFormVisible,
-    showAdd,
-    searchForm,
-    addForm,
-    tableData,
-    formLabelWidth,
-    handleChange,
-    onSubmit,
-    editRow,
-    deleteRow,
-    addPart,
-    subPart,
-    bomList
-    
-  };
-}
+      components: {
+        BomManage
+      }
+    };
+
+    return {
+      options,
+      options1,
+      options2,
+      activeNames,
+      dialogFormVisible,
+      showAdd,
+      searchForm,
+      addForm,
+      tableData,
+      formLabelWidth,
+      handleChange,
+      onSubmit,
+      editRow,
+      deleteRow,
+      addPart,
+      subPart,
+      bomList,
+      BomManage
+    };
+  }
 };
 </script>
 
 <style scoped>
 .set {
-margin-bottom: 15px;
-font-size: 14px;
+  margin-bottom: 15px;
+  font-size: 14px;
 }
 </style>
