@@ -122,6 +122,8 @@
                         <el-button type="primary" style="margin-left: 50px;">搜索</el-button>
                         <el-button type="danger" style="margin-left: 50px;">重置</el-button>
                       </el-form-item>
+
+                      <!-- 这里的数据模型有误 -->
                       <el-table :data="tableData" style="margin-top: 0px;">
                         <el-table-column prop="partNumber" label="编码" width="200"></el-table-column>
                         <el-table-column prop="partName" label="名称" width="200"></el-table-column>

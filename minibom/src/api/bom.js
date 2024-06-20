@@ -6,8 +6,8 @@ export const bomManageListService =()=>{
 }
 
 //新增子项
-export const bomManageAddSubpartService=()=>{    //有请求参数，等待更新文档
-    return request.post('/')//获得请求路径及请求方式的接口文档还没收到
+export const bomManageAddSubpartService=()=>{    
+    return request.post('/http://localhost:8080/BOMLink/create')
 }
 
 // 修改bom

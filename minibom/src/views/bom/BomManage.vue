@@ -4,6 +4,8 @@ import {
     Delete
 } from '@element-plus/icons-vue'
 import { ref } from 'vue'
+
+//定义bom清单
 const bomList = ref([
     {
         "enCode": 1,
@@ -19,7 +21,8 @@ const bomList = ref([
     }
 ])
 
-const partList = ref([
+//添加part数据模型
+const partModel = ref([
     {
         "enCode": 1,
         "name": "显示器",
@@ -34,7 +37,16 @@ const partList = ref([
     }
 ])
 
-import { bomManageListService, bomManageAddSubpartService, bomManageUpdateService ,bomManageDeleteService} from '@/api/bom.js'
+//作为新增子项的数据模型
+const addSubpartModel = ref({
+    sourceId: '',//父项编码
+    targetId: '',//子项编码
+    quantity: '',//数量
+    referenceDesignator: ''//位号}
+
+})
+
+import { bomManageListService, bomManageAddSubpartService, bomManageUpdateService, bomManageDeleteService } from '@/api/bom.js'
 //声明一个异步函数获取bom清单
 const bomManageList = async () => {
     let result = await bomManageListService();
@@ -42,20 +54,12 @@ const bomManageList = async () => {
 }
 bomManageList();
 
-//控制新增子项弹窗
+// //控制新增子项弹窗(新增子项在创建bom的页面)
 const dialogVisible1 = ref(false)
 
 //控制修改bom弹窗
 const dialogVisible2 = ref(false)
 
-
-//添加part数据模型
-const partModel = ref({
-    enCode: '',
-    name: '',
-    amount: '',
-    locationTag: ''
-})
 
 //添加part校验
 const rules = {
@@ -67,10 +71,16 @@ const rules = {
     ]
 }
 
+//新增子项的数据模型
+const addSubpart = (row) => {
+    addSubpartModel.value.targetId = row.enCode;//获取子项的编号
+
+
+}
 
 //调用接口，新增子项
 import { ElMessage } from 'element-plus'
-const addSubpart = async () => {
+const addSubpartApi = async () => {
     //调用接口
     let result = await bomManageAddSubpartService(partModel.value);
     ElMessage.success(result.msg ? result.msg : '新增成功')
@@ -81,15 +91,18 @@ const addSubpart = async () => {
 
 }
 
+//定义变量，控制标题的展示
+const title = ref('')
 //展示编辑弹窗
 const showDialog = (row) => {
-    dialogVisible2.value = true; title.value = '编辑bom'
+    dialogVisible2.value = true;
+    title.value = '编辑bom'
     //数据拷贝
     partModel.value.amount = row.amount;
     partModel.value.locationTag = row.locationTag;
 
-    // 扩展id属性，传递给后台，完成编辑的修改
-    partList.value.enCode = row.enCode;
+    // 扩展enCode属性，传递给后台，完成编辑的修改
+    partModel.value.enCode = row.enCode;
 
 }
 
@@ -118,7 +131,7 @@ const deleteBom = (row) => {
             type: 'warning',
         }
     )
-        .then(async() => {
+        .then(async () => {
             //调用删除接口
             let result = await bomManageDeleteService(row.enCode);
             ElMessage({
@@ -137,6 +150,11 @@ const deleteBom = (row) => {
         })
 
 }
+
+
+
+// const 
+
 
 
 
@@ -165,6 +183,7 @@ const deleteBom = (row) => {
                             <div class="header">
                                 <span>Bom管理</span>
 
+                                <!-- 在此页面不需要新增子项 -->
                                 <div class="extra">
                                     <el-button type="primary" @click="dialogVisible1 = true">新增子项</el-button>
                                 </div>
@@ -181,9 +200,11 @@ const deleteBom = (row) => {
                             <el-table-column label="操作" width="100">
                                 <template #default="{ row }">
                                     <!-- 编辑 -->
-                                    <el-button :icon="Edit" circle plain type="primary" @click="showDialog"></el-button>
+                                    <el-button :icon="Edit" circle plain type="primary"
+                                        @click="showDialog(row)"></el-button>
                                     <!-- 删除 -->
-                                    <el-button :icon="Delete" circle plain type="danger" @click="deleteBom(row)"></el-button>
+                                    <el-button :icon="Delete" circle plain type="danger"
+                                        @click="deleteBom(row)"></el-button>
                                 </template>
                             </el-table-column>
                             <template #empty>
@@ -205,17 +226,37 @@ const deleteBom = (row) => {
                                     <el-button type="primary" style="margin-left: 50px;">搜索</el-button>
                                     <el-button type="danger" style="margin-left: 50px;">重置</el-button>
                                 </el-form-item>
-                                <el-table :data="partList" style="margin-top: 0px;">
+                                <el-table :data="partModel" style="margin-top: 0px;">
                                     <el-table-column label="编号" prop="enCode"></el-table-column>
                                     <el-table-column label="名称" prop="name"></el-table-column>
                                     <el-table-column label="数量" prop="amount"></el-table-column>
                                     <el-table-column label="位号" prop="locationTag"></el-table-column>
-                                    <el-table-column prop="businessCode" label="" width="200"></el-table-column>
+                                    <el-table-column label="" width="200">
+                                        <template #default="{ row }">
+                                            <!-- 添加选定项 -->
+                                            <el-button @click="postTargetId(row)">添加选定项</el-button>
+                                        </template>
+                                    </el-table-column>
                                 </el-table>
                             </el-form>
+
+                            <!-- 编辑BOM信息 -->
+                            <div>
+                                <h1>
+                                    BOM信息
+                                </h1>
+                                <el-form-item label="数量">
+                                    <el-input v-model="partModel.quantity"></el-input>
+                                </el-form-item>
+                                <el-form-item label="位号">
+                                    <el-input v-model="partModel.referenceDesignator"></el-input>
+                                </el-form-item>
+
+                            </div>                                           
+                                
                             <template #footer>
                                 <span class="dialog-footer">
-                                    <el-button type="primary" @click="addSubpart">确认</el-button>
+                                    <el-button type="primary" @click="addSubpartApi">确认</el-button>
                                     <el-button type="danger" @click="dialogVisible1 = false">取消</el-button>
                                 </span>
                             </template>
