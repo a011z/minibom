@@ -202,7 +202,7 @@
                     
 
                   </el-tab-pane>
-                  <el-tab-pane label="版本管理">
+                  <!-- <el-tab-pane label="版本管理">
                     <el-form :model="versionSearch">
                       <el-form-item label="按编码查询">
                           <el-input v-model="versionSearch.partId" placeholder="按编码查询"></el-input>
@@ -220,7 +220,7 @@
                           <el-table-column prop="name" label="名称" width="200"></el-table-column>
                         </el-table>
 
-                  </el-tab-pane>
+                  </el-tab-pane> -->
                 </el-tabs>
               </el-form>
   
