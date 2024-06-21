@@ -41,7 +41,7 @@
             <el-table-column prop="partType" label="装配模式" width="150"></el-table-column>
             <el-table-column prop="businessCode" label="分类编码" width="200"></el-table-column>
             <el-table-column #default="{row}" label="操作">
-              <el-button type="primary" size="mini" @click="dialogFormVisible = true; form = row">修改</el-button>
+              <el-button type="primary" size="mini" @click="dialogFormVisible = true,form = row">修改</el-button>
               <el-button type="danger" style="margin-left: 10px;" size="mini" @click="deletePart(row)">删除</el-button>
             </el-table-column>
           </el-table>
@@ -55,7 +55,7 @@
                           <el-collapse-item title="基本属性" name="1">
                               <div class="set">产品：笔记本电脑</div>
                               <el-form-item label="部件名称：" :label-width="formLabelWidth" required>
-                                  <el-input v-model="form.name" autocomplete="off"></el-input>
+                                  <el-input v-model="form.partName" autocomplete="false"></el-input>
                                 </el-form-item>
 
                                 <el-form-item label="来源：" :label-width="formLabelWidth" required>
@@ -70,7 +70,7 @@
                                 </el-form-item>
 
                                 <el-form-item label="装配模式：" :label-width="formLabelWidth">
-                                  <el-select v-model="form.assemblyMode" placeholder="请选择">
+                                  <el-select v-model="form.partType" placeholder="请选择">
                                       <el-option
                                         v-for="item in options2"
                                         :key="item.value2"
@@ -81,7 +81,7 @@
                                 </el-form-item>
 
                                 <el-form-item label="分类代码：" :label-width="formLabelWidth" required>
-                                  <el-input v-model="form.number" @blur="getcls($event)" autocomplete="off"></el-input>
+                                  <el-input v-model="form.businessCode" @blur="getcls($event)" autocomplete="off"></el-input>
                                 </el-form-item>                                   
 
                           </el-collapse-item>
@@ -239,7 +239,8 @@
   import { ref, reactive,onMounted } from 'vue';
   import axios from 'axios';
   import request from '@/utils/request.js'
-  import { ElMessage } from 'element-plus';
+  import { ElMessage , ElMessageBox} from 'element-plus';
+  
   
   // 初始化状态
   const options1 = ref([
@@ -262,8 +263,7 @@
   const addform = reactive({});
   const formLabelWidth = ref('120px');
   const tableData = ref([
-
-  ]);
+]);
   const clsData = ref([]);
   const searchForm = reactive({
     partNumber: null,
@@ -344,7 +344,17 @@
   
   // 删除部件
   const deletePart = (row) => {
-    console.log(row);
+
+     ElMessageBox.confirm(
+      '你确认要删除该part吗',
+      '温馨提示',
+      {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+      }
+      ).then(async () => {
+    console.log(row),
     request.delete(`/part/delete/${row.partId}`)
       .then((result) => {     
         if(result.code === 20021){
@@ -355,6 +365,17 @@
         ElMessage.error(result.message)
         tableData.value = result.data;
         }
+      }
+      ) 
+      showQuery();
+    }
+    )
+      .catch(() => {
+        ElMessage({
+        type: 'info',
+        message: '用户取消了删除',
+        })
+        })
 
         // 删除后刷新表格数据
         // request.post("/part/query", {
@@ -371,10 +392,25 @@
         //     tableData.value = result.data;
         //   }
         //   });
-        showQuery();
-      });
-  };
+        
+      }
   
+    //   const handleRowClick = (row) => {
+    //  // 使用展开运算符将 row 的属性复制到 form.value
+
+    //   //显示对话框
+    //   dialogFormVisible.value = true;
+    //   form.name=row.partName;
+    //   // form.partSource=row.partSource;
+    //   // form.assemblyMode=row.assemblyMode;
+
+      
+    //   // console.log(form);
+    //   console.log(form.name);
+    //   console.log(row.name);
+    //   // console.log(11)
+    // };
+
   // 更新部件
   const updatePart = (row) => {
     console.log(row);
@@ -384,7 +420,7 @@
     });
     console.log(ret);
   
-    axios.put("http://localhost:8080/part/updateAndCheckin", {
+    request.put("/part/updateAndCheckin", {
       masterId: clsData.value.partId,
       name: form.name,
       partSource: form.partSource,
