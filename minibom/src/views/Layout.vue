@@ -260,7 +260,17 @@
   const dialogFormVisible = ref(false);
   const showAdd = ref(false);
   const form = reactive({});
-  const addform = reactive({});
+  const addform = reactive({
+    name: null,
+    partSource: null,
+    assemblyMode: null,
+    clsAttrs: {
+      Length: null,
+      Size: null,
+      Height: null,
+
+    },
+  });
   const formLabelWidth = ref('120px');
   const tableData = ref([
 
@@ -290,8 +300,8 @@
     //联调阶段的代码
    
     request.post("/part/query", {
-      partNumber: searchForm.partNumber,
-      partName: searchForm.partName
+      partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+      partName: (searchForm.partName==="")?null:searchForm.partName
     }).then((result) => {
       if(result.code === 20041){
         console.log(result);
@@ -299,6 +309,7 @@
         ElMessage.success(result.message)
       }else{
         ElMessage.error(result.message)
+        tableData.value = result.data;
       }
 
     });
@@ -389,7 +400,7 @@
     });
     console.log(ret);
   
-    axios.post("http://localhost:8080/part/create", {
+    request.post("/part/create", {
       name: addform.name,
       partSource: addform.partSource,
       assemblyMode: addform.assemblyMode,
