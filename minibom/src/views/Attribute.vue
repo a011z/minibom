@@ -7,7 +7,7 @@
           <el-aside width="230px" style="border: 1px solid #eee">
             <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
               <el-menu :default-openeds="['1', '2']">
-                <el-menu-item index="1-1"><router-link to="/part">部件管理</router-link></el-menu-item>
+                <el-menu-item index="1-1"><router-link to="/layout">部件管理</router-link></el-menu-item>
                 <el-menu-item index="1-2"><router-link to="/bom">BOM管理</router-link></el-menu-item>
                 <el-menu-item index="1-3"><router-link to="/attribute" >属性管理</router-link></el-menu-item>
               </el-menu>

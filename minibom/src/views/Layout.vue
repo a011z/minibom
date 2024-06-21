@@ -7,7 +7,7 @@
           <el-aside width="230px" style="border: 1px solid #eee">
             <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
               <el-menu :default-openeds="['1', '2']">
-                <el-menu-item index="1-1"><router-link to="/part">部件管理</router-link></el-menu-item>
+                <el-menu-item index="1-1"><router-link to="/layout">部件管理</router-link></el-menu-item>
                 <el-menu-item index="1-2"><router-link to="/bom">BOM管理</router-link></el-menu-item>
                 <el-menu-item index="1-3"><router-link to="/attribute" title="属性管理">属性管理</router-link></el-menu-item>
               </el-menu>
@@ -27,23 +27,22 @@
   
               <el-form-item>
                 <el-button type="primary" plain style="margin-left: 50px;" @click="onSubmit">查询</el-button>
-                <el-button type="danger" plain style="margin-left: 50px;" @click="showAdd = true">创建</el-button>
+                <el-button type="primary" plain style="margin-left: 50px;" @click="showAdd = true">创建</el-button>
               </el-form-item>
             </el-form>
   
 <!--展示查询结果-->
           <el-table :data="tableData"  style="margin-top: 0px;">
-            <el-table-column prop="partNumber" label="部件编码" width="200"></el-table-column>
-           
-            <el-table-column prop="partName" label="部件名称" width="200">
-            </el-table-column>
-            <el-table-column prop="version" label="版本号" width="200"></el-table-column>
+            <el-table-column prop="partNumber" label="部件编码" width="180"></el-table-column>
+            <el-table-column prop="partId" label="Master编码" width="180"></el-table-column>
+            <el-table-column prop="partName" label="部件名称" width="160"></el-table-column>
             <el-table-column prop="versionId" label="版本ID" width="200"></el-table-column>
-            <el-table-column prop="partType" label="装配模式" width="200"></el-table-column>
+            <el-table-column prop="version" label="版本号" width="80"></el-table-column>
+            <el-table-column prop="partType" label="装配模式" width="150"></el-table-column>
             <el-table-column prop="businessCode" label="分类编码" width="200"></el-table-column>
             <el-table-column #default="{row}" label="操作">
               <el-button type="primary" size="mini" @click="dialogFormVisible = true; form = row">修改</el-button>
-              <el-button type="danger" style="margin-left: 10px;" size="mini" @click="DeletePart(row)">删除</el-button>
+              <el-button type="danger" style="margin-left: 10px;" size="mini" @click="deletePart(row)">删除</el-button>
             </el-table-column>
           </el-table>
 
@@ -146,7 +145,7 @@
                                     </el-select>
                                 </el-form-item>
                                 <el-form-item label="分类代码：" :label-width="formLabelWidth" required>
-                                  <el-input v-model="addform.number" @blur="getcls($event)" autocomplete="off"></el-input>
+                                  <el-input v-model="addform.businessCode" @blur="getcls($event)" autocomplete="off"></el-input>
                                 </el-form-item>                                   
                           </el-collapse-item>
 
@@ -227,7 +226,7 @@
   
               <template #footer>
                 <el-button @click="showAdd = false">取消</el-button>
-                <el-button type="primary" @click="addPart(form)">提交</el-button>
+                <el-button type="primary" @click="addPart(addform)">提交</el-button>
               </template>
             </el-dialog>
           </el-main>
@@ -237,22 +236,22 @@
   </template>
   
   <script setup>
-  import { ref, reactive } from 'vue';
+  import { ref, reactive,onMounted } from 'vue';
   import axios from 'axios';
   import request from '@/utils/request.js'
   import { ElMessage } from 'element-plus';
   
   // 初始化状态
   const options1 = ref([
-    { value1: '选项1', label1: '制造' },
-    { value1: '选项2', label1: '购买' },
-    { value1: '选项3', label1: '购买-单一供应源' }
+    { value1: 'Make', label1: '制造' },
+    { value1: 'Buy', label1: '购买' },
+    { value1: 'Buy_SingleSource', label1: '购买-单一供应源' }
   ]);
   
   const options2 = ref([
-    { value2: '选项1', label2: '可分离' },
-    { value2: '选项2', label2: '不可分离' },
-    { value2: '选项3', label2: '零件' }
+    { value2: 'Separable', label2: '可分离' },
+    { value2: 'Inseparable', label2: '不可分离' },
+    { value2: 'Part', label2: '零件' }
   ]);
   
   const activeNames = ref(['1']);
@@ -260,17 +259,7 @@
   const dialogFormVisible = ref(false);
   const showAdd = ref(false);
   const form = reactive({});
-  const addform = reactive({
-    name: null,
-    partSource: null,
-    assemblyMode: null,
-    clsAttrs: {
-      Length: null,
-      Size: null,
-      Height: null,
-
-    },
-  });
+  const addform = reactive({});
   const formLabelWidth = ref('120px');
   const tableData = ref([
 
@@ -280,6 +269,10 @@
     partNumber: null,
     partName: null
   });
+
+  onMounted(()=>{
+    
+  })
   
   // 表单提交处理
   const onSubmit = () => {
@@ -313,7 +306,9 @@
       }
 
     });
+
   };
+  onSubmit();
   
   // 查询扩展属性
   const getcls = (e) => {
@@ -338,26 +333,41 @@
     // clsData.value = result.data;
   
    // 联调阶段的代码
-    axios.get(`http://localhost:8080/part/ClassificationNode/getCategoryNodeInfo?id=${businessCode1}`)
+    request.get(`/part/ClassificationNode/getCategoryNodeInfo?id=${businessCode1}`)
       .then((result) => {
         console.log(result);
-        clsData.value = result.data.data;
+        clsData.value = result.data;
       });
   };
   
   // 删除部件
   const deletePart = (row) => {
     console.log(row);
-    axios.delete(`http://localhost:8080/part/delete/${row.partId}`)
-      .then((result) => {
-        console.log(result);
+    request.delete(`/part/delete/${row.partId}`)
+      .then((result) => {     
+        if(result.code === 20021){
+          console.log(result);
+          tableData.value = result.data;
+          ElMessage.success(result.message)
+        }else{
+        ElMessage.error(result.message)
         tableData.value = result.data;
-  
+        }
+
         // 删除后刷新表格数据
-        axios.post("http://localhost:8080/part/query")
+        request.post("/part/query", {
+          partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+          partName: (searchForm.partName==="")?null:searchForm.partName
+        })
           .then((result) => {
+          if(result.code === 20041){
             console.log(result);
             tableData.value = result.data;
+            ElMessage.success(result.message)
+          }else{
+            ElMessage.error(result.message)
+            tableData.value = result.data;
+          }
           });
       });
   };
@@ -396,7 +406,7 @@
     console.log(row);
     let ret = {};
     clsData.value.forEach(attr => {
-      ret[attr.nameEn] = attr.value ?? "";
+      ret[attr.nameEn] = attr.value ?? null;
     });
     console.log(ret);
   
@@ -405,15 +415,24 @@
       partSource: addform.partSource,
       assemblyMode: addform.assemblyMode,
       clsAttrs: ret,
-      clsnumber: addform.number
+      number: addform.businessCode
     }).then((result) => {
-      console.log(result);
-      dialogFormVisible.value = false;
+      console.log(result.message);
+      showAdd.value = false;
+
+      if(result.code === 20011){
+        console.log(result);
+        
+        ElMessage.success(result.message)
+      }else{
+        ElMessage.error(result.message)
+        
+      }
   
       // 添加后刷新表格数据
-      axios.post("http://localhost:8080/part/query", {
-        partNumber: searchForm.partNumber,
-        partName: searchForm.partName
+      request.post("/part/query", {
+        partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+        partName: (searchForm.partName==="")?null:searchForm.partName
       }).then((result) => {
         console.log(result);
         tableData.value = result.data;
