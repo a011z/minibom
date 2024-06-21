@@ -274,24 +274,26 @@
     
   })
   
+  const showQuery = () => {  
+    request.post("/part/query", {
+      partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+      partName: (searchForm.partName==="")?null:searchForm.partName
+    }).then((result) => {
+      if(result.code === 20041){
+        console.log(result);
+        tableData.value = result.data;
+
+      }else{
+
+        tableData.value = result.data;
+      }
+
+    });
+
+  };
+
   // 表单提交处理
-  const onSubmit = () => {
-    // 测试数据
-    // let result = {
-    //   "code": 20041,
-    //   "message": "查询成功",
-    //   "data": [
-    //     { "partId": 643938945230446593, "partName": "PART", "partNumber": "Part000000032", "version": "A", "iteration": 4, "partType": "零件", "businessCode": null },
-    //     { "partId": 10000001, "partName": "华为Mate60Pro", "partNumber": "Part000000033", "version": "A", "iteration": 4, "partType": "零件", "businessCode": null },
-    //     { "partId": 644609559540797441, "partName": "PART(555555)", "partNumber": "Part000000039", "version": "A", "iteration": 1, "partType": "零件", "businessCode": null },
-    //     { "partId": 10000002, "partName": "6.8英寸屏幕", "partNumber": "Part000000035", "version": "A", "iteration": 2, "partType": "零件", "businessCode": null }
-    //   ]
-    // };
-    // console.log(result.data);
-    // tableData.value = result.data;
-  
-    //联调阶段的代码
-   
+  const onSubmit = () => {  
     request.post("/part/query", {
       partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
       partName: (searchForm.partName==="")?null:searchForm.partName
@@ -355,20 +357,21 @@
         }
 
         // 删除后刷新表格数据
-        request.post("/part/query", {
-          partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
-          partName: (searchForm.partName==="")?null:searchForm.partName
-        })
-          .then((result) => {
-          if(result.code === 20041){
-            console.log(result);
-            tableData.value = result.data;
-            ElMessage.success(result.message)
-          }else{
-            ElMessage.error(result.message)
-            tableData.value = result.data;
-          }
-          });
+        // request.post("/part/query", {
+        //   partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+        //   partName: (searchForm.partName==="")?null:searchForm.partName
+        // })
+        //   .then((result) => {
+        //   if(result.code === 20041){
+        //     console.log(result);
+        //     tableData.value = result.data;
+        //     ElMessage.success(result.message)
+        //   }else{
+        //     ElMessage.error(result.message)
+        //     tableData.value = result.data;
+        //   }
+        //   });
+        showQuery();
       });
   };
   
