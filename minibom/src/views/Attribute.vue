@@ -19,9 +19,9 @@
                 <el-form-item label="属性信息查询">
                   <el-input v-model="searchForm.attribute" placeholder="请输入关键字"></el-input>
                 </el-form-item>
-    
                 <el-form-item>
                   <el-button type="primary" plain style="margin-left: 50px;" @click="AttributeSearch">查询</el-button>
+                  <el-button type="primary" plain style="margin-left: 50px;" @click="AttributeCreate">创建</el-button>
                 </el-form-item>
               </el-form>
               <!-- 属性表单 -->
@@ -33,57 +33,53 @@
                 <el-table-column prop="catagory" label="数据类型" width="200"></el-table-column> 
                 
                 <el-table-column label="查看属性所在分类">
-                  <!-- <template #default="{ row }">
-                  <el-button @click="AttributeView(row) ;ViewPage=true"><el-icon><View /></el-icon></el-button>
-                </template> -->
-                <el-button @click="ViewPage=true"><el-icon><View /></el-icon></el-button>
+                  <template #default="{ row }">
+                <el-button @click="ViewPage=true,AttributeView(row)"><el-icon><View /></el-icon></el-button>
+              </template>
                 </el-table-column>
                 <el-table-column label="操作" >
                   <template #default="{ row }">
-                    <el-button @click="AttributeEdit(row)"><el-icon><Edit /></el-icon></el-button>
+                    <el-button @click="AttributeUpdateEcho(row)"><el-icon><Edit /></el-icon></el-button>
                     <el-button @click="AttributeDelete(row)"><el-icon><Delete /></el-icon></el-button>
                   </template>
                 </el-table-column> 
                </el-table>
                <!-- 属性分类信息 -->
                <el-dialog v-model="ViewPage" title="属性所在分类信息" width="50%" >
-                <el-table :data ="AttributaModel">
-                <el-table-column prop="businessCode" label="分类码" width="200"></el-table-column> 
-                <el-table-column prop="name" label="属性中文名称" width="200"></el-table-column>
-                <el-table-column prop="nameEn" label="属性英文名称" width="200"></el-table-column>
-                <el-table-column prop="folder.name" label="分类中文名称" width="200"></el-table-column>
-                <el-table-column prop="folder.nameEn" label="分类英文名称" width="200"></el-table-column>
-                </el-table>
+                <div v-for="item in ViewModel" :key="item.key" class="attribute-item">
+                  <span>{{ item.label }}:</span> 
+                  <span>{{ item.value }}</span>
+                </div>
                </el-dialog>
                <!-- 创建窗口 -->
-               <el-dialog v-model="EditPage" title="添加属性" >
-                <el-form :model="AttributaModel"  >
-                  <el-form-item label="中文名称" prop="name">
-                    <el-input v-model="AttributaModel.name" >
+               <el-dialog v-model="CreatePage" title="添加属性" >
+                <el-form :model="AttributeModel"  >
+                  <el-form-item label="中文名称" prop="name" required>
+                    <el-input v-model="AttributeModel.name" >
                     </el-input>
                   </el-form-item>
-                  <el-form-item label="英文名称" prop="nameEn">
-                    <el-input v-model="AttributaModel.nameEn" >
+                  <el-form-item label="英文名称" prop="nameEn" required>
+                    <el-input v-model="AttributeModel.nameEn" >
                     </el-input>
                   </el-form-item>
-                  <el-form-item label="中文描述" prop="description">
-                    <el-input v-model="AttributaModel.description" >
+                  <el-form-item label="中文描述" prop="description" required>
+                    <el-input v-model="AttributeModel.description" >
                     </el-input>
                   </el-form-item>
-                  <el-form-item label="英文描述" prop="descriptionEn">
-                    <el-input v-model="AttributaModel.descriptionEn" >
+                  <el-form-item label="英文描述" prop="descriptionEn" required>
+                    <el-input v-model="AttributeModel.descriptionEn" >
                     </el-input>
                   </el-form-item>
-                  <el-form-item label="数据类型" prop="type">
-                    <el-input v-model="AttributaModel.type" >
+                  <el-form-item label="数据类型" prop="type" required>
+                    <el-input v-model="AttributeModel.type" >
                     </el-input>
                   </el-form-item>
-                  <el-form-item label="属性类型" prop="category">
-                    <el-input v-model="AttributaModel.category" >
+                  <el-form-item label="属性类型" prop="category" required>
+                    <el-input v-model="AttributeModel.category" >
                     </el-input>
                   </el-form-item>
-                  <el-form-item label="属性状态" prop="disableFlag">
-                    <el-input v-model="AttributaModel.disableFlag" >
+                  <el-form-item label="属性状态" prop="disableFlag" required>
+                    <el-input v-model="AttributeModel.disableFlag" >
                     </el-input>
                   </el-form-item>
                 </el-form>   
@@ -93,6 +89,13 @@
                     <el-button type="primary"> 确认 </el-button>
                   </span>
                 </template>
+                <!-- 属性修改窗口 -->
+               </el-dialog>
+               
+               <el-dialog>
+
+
+
                </el-dialog>
   
 
@@ -104,7 +107,7 @@
   </template>
   <script setup>
   
-  import { reactive ,ref} from "vue";
+  import { reactive ,ref,computed} from "vue";
   //搜索栏输入
   const searchForm=reactive({
        name:null
@@ -131,7 +134,8 @@
 
 
 
-  const AttributaModel=ref({
+  //创建用模型
+  const AttributeModel=ref({
     id:'',
     name:'',
     nameEn:'',
@@ -145,17 +149,41 @@
       name:'',
       nameEn:''
     }
-
-  
   })
+  //更新用模型
+  const UpdateModel=ref({
+    id:'',
+    description:'',
+    descriptionEn:''
+
+  })
+  //属性查看分类模型
+// 用于存储被点击行的响应式引用
+const selectedRow = ref(null);
+// 计算属性，用于获取特定的属性值
+const ViewModel = computed(() => {
+  if (!selectedRow.value) return [];
+  const { name, nameEn, folder } = selectedRow.value;
+  return [
+    { key: 'name', label: '属性中文名称', value: name },
+    { key: 'nameEn', label: '属性英文名称', value: nameEn },
+    { key: 'folderName', label: '分类中文名称', value: folder.name },
+    { key: 'folderNameEn', label: '分类英文名称', value: folder.nameEn },
+    { key: 'folderBusinessCode', label: '分类码', value: folder.businessCode }
+  ];
+});
+
+//属性创建窗口
+const CreatePage=ref(false)
 //属性分类窗口
   const ViewPage=ref(false)
   //属性编辑窗口
-  const EditPage=ref(false)
+  const UpdatePage=ref(false)
 
 
 
-  import { AttributeSearchService }from "@/api/attributeAPI.js"
+  import { AttributeSearchService,AttributeCreateService,AttributeUpdateService,AttributeDeleteService }from "@/api/attributeAPI.js"
+import { ElMessage } from "element-plus";
   //属性搜索
   const AttributeSearch= async()=>{
     const params = searchForm.name;
@@ -164,25 +192,37 @@
   }
 
 
-  //提取当前行的name用于后续的修改与删除
-  const updateCategoryEcho = (row) => {
+  //某一行属性所在分类查看
+    const AttributeView=(row)=>{
+      selectedRow.value = row; // 将点击的行数据赋值给 selectedRow
 
-    EditPage.value = true;
-    //将row中的数据赋值给AttributeModel
-    AttributaModel.value.name=row.categoryName;
+
+
 
 }
-  //某一行属性所在分类查看
-    const AttributeView=async()=>{
-      const params=AttributaModel.value.name;
-      AttributaModel.value.name="";
-      let result=await AttributeSearchService(params);
-      AttributaModel.value=result.data;
+//属性创建
+const AttributeCreate=async()=>{
+  let result=await AttributeCreateService(AttributeModel.value);
+  ElMessage(result.message)
+
+
+
+
+}
+//属性回显
+const AttributeUpdateEcho=(row)=>{
+  UpdateModel.id=row.value.id
+  UpdateModel.description=row.value.description
+  UpdateModel.descriptionEn=row.value.descriptionEn
+
+
 
 
 }
   //属性更改
-  const AttributeEdit=async()=>{
+  const AttributeUpdate=async()=>{
+    let result=await AttributeUpdateService(UpdateModel.value);
+    ElMessage(result.message)
 
   }
 
