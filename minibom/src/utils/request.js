@@ -8,50 +8,50 @@ import { ElMessage } from 'element-plus';
 const baseURL = '/api';
 const instance = axios.create({baseURL})
 
-// import { useTokenStore } from '@/stores/token.js';
-// //添加请求拦截器
-// instance.interceptors.request.use(
-//     (config)=>{
-//         //添加token
-//         const tokenStore=useTokenStore();
-//         if(tokenStore){
-//             config.headers.Authorization=tokenStore.token
-//         }
-//         return config;
-//     },
-//     (err)=>{
+import { useTokenStore } from '@/stores/token.js';
+//添加请求拦截器
+instance.interceptors.request.use(
+    (config)=>{
+        //添加token
+        const tokenStore=useTokenStore();
+        if(tokenStore){
+            config.headers.Authorization=tokenStore.token
+        }
+        return config;
+    },
+    (err)=>{
 
-//         Promise.reject(err)
+        Promise.reject(err)
 
-//     }
-// )
-// import { useRouter } from 'vue-router';
-// const router=useRouter();
-// import router from '@/router/index.js';
+    }
+)
+import { useRouter } from 'vue-router';
+const router=useRouter();
+
 //添加响应拦截器
-// instance.interceptors.response.use(
-//     result=>{
-//         if(result.data.code===123||result.data.code===116){
-//         return result.data;
-//         }
+instance.interceptors.response.use(
+    result=>{
+        if(result.data.code===123||result.data.code===116){
+        return result.data;
+        }
         
-//         ElMessage.error(result.data.message?result.data.message:'服务异常')
-//         return Promise.reject(result.data)
-//     },
-//     err=>{
+        ElMessage.error(result.data.message?result.data.message:'服务异常')
+        return Promise.reject(result.data)
+    },
+    err=>{
 
-//         //判断响应状态码
-//         if(err.response.status===401){
-//             ElMessage.error('请先登录')
-//             router.push('/login')
+        //判断响应状态码
+        if(err.response.status===401){
+            ElMessage.error('请先登录')
+            router.push('/login')
 
-//         }else{
-//             ElMessage.error('服务异常')
-//         }
-//         return Promise.reject(err);//异步的状态转化成失败的状态
+        }else{
+            ElMessage.error('服务异常')
+        }
+        return Promise.reject(err);//异步的状态转化成失败的状态
 
 
-//     }
-// )
+    }
+)
 
 export default instance;
