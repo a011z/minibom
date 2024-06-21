@@ -15,7 +15,7 @@ instance.interceptors.request.use(
         //添加token
         const tokenStore=useTokenStore();
         if(tokenStore){
-            config.headers.Authorization=tokenStore.token
+            config.headers.token=tokenStore.token
         }
         return config;
     },
@@ -31,12 +31,17 @@ const router=useRouter();
 //添加响应拦截器
 instance.interceptors.response.use(
     result=>{
-        if(result.data.code===123||result.data.code===116){
+        // if(result.data.code===200||result.data.code===116){
+        // ElMessage.success(result.data.message?result.data.message:'服务异常')
         return result.data;
-        }
         
-        ElMessage.error(result.data.message?result.data.message:'服务异常')
-        return Promise.reject(result.data)
+        // }
+        // else{
+        //     ElMessage.error(result.data.message?result.data.message:'服务异常')
+        //     return Promise.reject(result.data)
+
+        // }
+
     },
     err=>{
 

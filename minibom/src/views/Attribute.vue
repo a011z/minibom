@@ -21,7 +21,7 @@
                 </el-form-item>
                 <el-form-item>
                   <el-button type="primary" plain style="margin-left: 50px;" @click="AttributeSearch">查询</el-button>
-                  <el-button type="primary" plain style="margin-left: 50px;" @click="AttributeCreate">创建</el-button>
+                  <el-button type="primary" plain style="margin-left: 50px;" @click="CreatePage=true">创建</el-button>
                 </el-form-item>
               </el-form>
               <!-- 属性表单 -->
@@ -71,35 +71,49 @@
                     </el-input>
                   </el-form-item>
                   <el-form-item label="数据类型" prop="type" required>
-                    <el-input v-model="AttributeModel.type" >
-                    </el-input>
+                    <el-select v-model="AttributeModel.type" placeholder="请选择数据类型" filterable multiple>
+                      <el-option label="字符型" value="STRING"></el-option>
+                      <el-option label="整数型" value="INTEGER"></el-option>
+                      <el-option label="实数型" value="DECIMAL"></el-option>
+                    </el-select>
                   </el-form-item>
                   <el-form-item label="属性类型" prop="category" required>
                     <el-input v-model="AttributeModel.category" >
                     </el-input>
                   </el-form-item>
                   <el-form-item label="属性状态" prop="disableFlag" required>
-                    <el-input v-model="AttributeModel.disableFlag" >
-                    </el-input>
+                    <el-select v-model="AttributeModel.type" placeholder="请选择属性状态" filterable multiple>
+                      <el-option label="有效" value="true"></el-option>
+                      <el-option label="失效" value="false"></el-option>
+                    </el-select>
                   </el-form-item>
                 </el-form>   
                  <template #footer>
                   <span class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary"> 确认 </el-button>
+                    <el-button @click=" CreatePage= false">取消</el-button>
+                    <el-button type="primary" @click="AttributeCreate"> 确认 </el-button>
                   </span>
                 </template>
-                <!-- 属性修改窗口 -->
+               </el-dialog >
+ 
+
+              <!-- 属性修改窗口 -->
+               <el-dialog v-model="UpdatePage" title="属性修改">
+                <el-form :model="UpdateModel"  >
+                <el-form-item label="中文描述" prop="description" >
+                    <el-input v-model="UpdateModel.description" ></el-input>
+                  </el-form-item>
+                  <el-form-item label="英文描述" prop="descriptioEn" >
+                    <el-input v-model="UpdateModel.descriptionEn" ></el-input>
+                  </el-form-item>
+               </el-form>
+               <template #footer>
+                  <span class="dialog-footer">
+                    <el-button @click="UpdatePage = false">取消</el-button>
+                    <el-button type="primary" @click="AttributeUpdate"> 确认 </el-button>
+                  </span>
+                </template>
                </el-dialog>
-               
-               <el-dialog>
-
-
-
-               </el-dialog>
-  
-
-               
           </el-main>
         </el-container>
       </el-container>
@@ -136,18 +150,18 @@
 
   //创建用模型
   const AttributeModel=ref({
-    id:'',
-    name:'',
-    nameEn:'',
-    description:'',
-    descriptionEn:'',
-    businessCode:'',
-    category:'',
-    type:'',
+    id:null,
+    name:null,
+    nameEn:null,
+    description:null,
+    descriptionEn:null,
+    businessCode:null,
+    category:'拓展属性',
+    type:null,
     folder:{
-      businessCode:'',
-      name:'',
-      nameEn:''
+      businessCode:null,
+      name:null,
+      nameEn:null
     }
   })
   //更新用模型
@@ -182,12 +196,17 @@ const CreatePage=ref(false)
 
 
 
-  import { AttributeSearchService,AttributeCreateService,AttributeUpdateService,AttributeDeleteService }from "@/api/attributeAPI.js"
-import { ElMessage } from "element-plus";
+import { AttributeSearchService,AttributeCreateService,AttributeUpdateService,AttributeDeleteService }from "@/api/attributeAPI.js"
+import { ElMessage ,ElMessageBox} from "element-plus";
   //属性搜索
   const AttributeSearch= async()=>{
     const params = searchForm.name;
     let result= await AttributeSearchService(params);
+    tableData.value=result.data;
+  }
+  //获取所有属性
+  const getAllAttribute=async()=>{
+    let result= await AttributeSearchService(null);
     tableData.value=result.data;
   }
 
@@ -195,42 +214,57 @@ import { ElMessage } from "element-plus";
   //某一行属性所在分类查看
     const AttributeView=(row)=>{
       selectedRow.value = row; // 将点击的行数据赋值给 selectedRow
-
-
-
-
 }
 //属性创建
 const AttributeCreate=async()=>{
   let result=await AttributeCreateService(AttributeModel.value);
-  ElMessage(result.message)
-
-
+  CreatePage.value=false;
+  ElMessage(result.message);
 
 
 }
 //属性回显
 const AttributeUpdateEcho=(row)=>{
-  UpdateModel.id=row.value.id
-  UpdateModel.description=row.value.description
-  UpdateModel.descriptionEn=row.value.descriptionEn
-
-
-
+  UpdatePage.value=true
+   UpdateModel.value.id=row.id;
+   UpdateModel.value.description=row.description;
+   UpdateModel.value.descriptionEn=row.descriptionEn
 
 }
   //属性更改
   const AttributeUpdate=async()=>{
     let result=await AttributeUpdateService(UpdateModel.value);
+    UpdatePage.value=false;
     ElMessage(result.message)
 
   }
 
   //属性删除
-  const AttributeDelete=async()=>{
-
+  const AttributeDelete = (row) => {
+    ElMessageBox.confirm(
+        '你确认删除该分类信息吗？',
+        '温馨提示',
+        {
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }
+    )
+        .then(async () => {
+            //用户点击了确认
+            let result = await AttributeDeleteService(row.id)
+            ElMessage.success(result.message?result.message:'删除成功')
+            //再次调用getAllCategory，获取所有文章分类
+            getAllAttribute();
+        })
+        .catch(() => {
+            //用户点击了取消
+            ElMessage({
+                type: 'info',
+                message: '取消删除',
+            })
+        })
 }
-
 
   
   </script>
