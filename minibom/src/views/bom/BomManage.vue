@@ -172,6 +172,8 @@ const deleteBom = (row) => {
                             <el-menu-item index="1-1"><router-link to="/layout">部件管理</router-link></el-menu-item>
                             <el-menu-item index="1-2"><router-link
                                     to="/bom/bommanage">BOM管理</router-link></el-menu-item>
+                                    <el-menu-item index="1-3"><router-link to="/attribute" title="属性管理">属性管理</router-link></el-menu-item>
+
                         </el-menu>
                     </el-aside>
                 </el-aside>
@@ -239,8 +241,7 @@ const deleteBom = (row) => {
                                     </el-table-column>
                                 </el-table>
                             </el-form>
-
-                            <!-- 编辑BOM信息 -->
+                            <!-- 填写BOM信息 -->
                             <div>
                                 <h1>
                                     BOM信息
