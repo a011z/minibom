@@ -37,3 +37,10 @@ export const subPartUpdateService=(subPartModel)=>{//等待参数
 export const subPartDeleteService=(BOMLinkId)=>{//等待参数id?,具体名字暂时未知
     return request.delete('http://localhost:8080/BOMLink/delete/id='+id)//等待路径
 }//还需要考虑
+
+
+//查询父项
+export const parentListService=(sourceName)=>{//后端传过来是versionId，还需要重新考虑
+
+    return request.post('http://localhost:8080/BOMLink/queryParentItem',{sourceName})
+}
