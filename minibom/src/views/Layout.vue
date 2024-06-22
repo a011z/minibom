@@ -41,7 +41,7 @@
             <el-table-column prop="partType" label="装配模式" width="150"></el-table-column>
             <el-table-column prop="businessCode" label="分类编码" width="200"></el-table-column>
             <el-table-column #default="{row}" label="操作">
-              <el-button type="primary" size="mini" @click="dialogFormVisible = true,form = row">修改</el-button>
+              <el-button type="primary" size="mini" @click="handleRowClick(row)">修改</el-button>
               <el-button type="danger" style="margin-left: 10px;" size="mini" @click="deletePart(row)">删除</el-button>
             </el-table-column>
           </el-table>
@@ -54,6 +54,15 @@
                       <el-collapse v-model="activeNames1" @change="handleChange">
                           <el-collapse-item title="基本属性" name="1">
                               <div class="set">产品：笔记本电脑</div>
+
+                              <el-form-item label="Master编码：" :label-width="formLabelWidth" required>
+                                  <el-input v-model="form.partId" autocomplete="false"></el-input>
+                                </el-form-item>
+
+                                <el-form-item label="部件编码：" :label-width="formLabelWidth" required>
+                                  <el-input v-model="form.partNumber" autocomplete="false"></el-input>
+                                </el-form-item>
+
                               <el-form-item label="部件名称：" :label-width="formLabelWidth" required>
                                   <el-input v-model="form.partName" autocomplete="false"></el-input>
                                 </el-form-item>
@@ -81,7 +90,8 @@
                                 </el-form-item>
 
                                 <el-form-item label="分类代码：" :label-width="formLabelWidth" required>
-                                  <el-input v-model="form.businessCode" @blur="getcls($event)" autocomplete="off"></el-input>
+                                  <!-- <el-input v-model="form.businessCode" @blur="Update_getcls($event)" autocomplete="off"></el-input> -->
+                                  <el-input v-model="form.businessCode" autocomplete="off"></el-input>
                                 </el-form-item>                                   
 
                           </el-collapse-item>
@@ -105,7 +115,7 @@
             </el-form>
             <template v-slot:footer>
               <div class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button @click="undo(form)">取 消</el-button>
                 <el-button type="primary" @click="updatePart(form)">提交</el-button>
               </div>
             </template>
@@ -248,12 +258,13 @@
     { value1: 'Buy', label1: '购买' },
     { value1: 'Buy_SingleSource', label1: '购买-单一供应源' }
   ]);
-  
+
   const options2 = ref([
     { value2: 'Separable', label2: '可分离' },
     { value2: 'Inseparable', label2: '不可分离' },
     { value2: 'Part', label2: '零件' }
   ]);
+  
   
   const activeNames = ref(['1']);
   const activeNames1 = ref(['1']);
@@ -312,35 +323,31 @@
   };
   onSubmit();
   
-  // 查询扩展属性
+  // 添加时查询扩展属性
   const getcls = (e) => {
     console.log(e);
     var businessCode1 = addform.businessCode;
     console.log(businessCode1);
-  
-    // 测试数据
-    // let result = {
-    //   "code": 20041,
-    //   "message": "查询指定分类结点的全部分类属性 成功",
-    //   "data": [
-    //     { "id": "642731228134379525", "name": "宽度", "nameEn": "Width", "description": "宽度", "type": "DECIMAL" },
-    //     { "id": "642731228134379524", "name": "重量", "nameEn": "Weight", "description": "重量", "type": "DECIMAL" },
-    //     { "id": "642731228134379523", "name": "长度", "nameEn": "Length", "description": "长度", "type": "DECIMAL" },
-    //     { "id": "642731228134379522", "name": "型号", "nameEn": "Mode", "description": "型号", "type": "STRING" },
-    //     { "id": "642731228134379521", "name": "大小", "nameEn": "Size", "description": "大小", "type": "DECIMAL" },
-    //     { "id": "642731228134379520", "name": "高度/厚度", "nameEn": "Height or thickness", "description": "高度/厚度", "type": "DECIMAL" }
-    //   ]
-    // };
-    // console.log(result.data);
-    // clsData.value = result.data;
-  
-   // 联调阶段的代码
     request.get(`/part/ClassificationNode/getCategoryNodeInfo?id=${businessCode1}`)
       .then((result) => {
         console.log(result);
         clsData.value = result.data;
       });
   };
+
+// 修改时查询扩展属性,不绑定鼠标焦点事件，直接在点击修改后调用
+const Update_getcls = async () => {
+    // console.log(e);
+    var businessCode1 = form.businessCode;
+    console.log(businessCode1);
+    await request.get(`/part/ClassificationNode/getCategoryNodeInfo?id=${businessCode1}`)
+      .then((result) => {
+        console.log(result);
+        clsData.value = result.data;
+      });
+  };
+
+
   
   // 删除部件
   const deletePart = (row) => {
@@ -376,70 +383,124 @@
         message: '用户取消了删除',
         })
         })
-
-        // 删除后刷新表格数据
-        // request.post("/part/query", {
-        //   partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
-        //   partName: (searchForm.partName==="")?null:searchForm.partName
-        // })
-        //   .then((result) => {
-        //   if(result.code === 20041){
-        //     console.log(result);
-        //     tableData.value = result.data;
-        //     ElMessage.success(result.message)
-        //   }else{
-        //     ElMessage.error(result.message)
-        //     tableData.value = result.data;
-        //   }
-        //   });
-        
+     
       }
   
-    //   const handleRowClick = (row) => {
-    //  // 使用展开运算符将 row 的属性复制到 form.value
+      //点击修改按钮触发
+      const handleRowClick = (row) => {
 
-    //   //显示对话框
-    //   dialogFormVisible.value = true;
-    //   form.name=row.partName;
-    //   // form.partSource=row.partSource;
-    //   // form.assemblyMode=row.assemblyMode;
-
+    //调用检出接口
+    request.put("/part/checkout/?id="+row.partId, {
+     
+    }).then(async (result) => {
+      console.log(result);
+       //显示对话框
+       dialogFormVisible.value = true;
       
-    //   // console.log(form);
-    //   console.log(form.name);
-    //   console.log(row.name);
-    //   // console.log(11)
-    // };
+      // 自动填充原来的各种属性值
+      form.partId=row.partId;
+      form.partNumber=row.partNumber;
+      form.partName=row.partName;
+      form.partSource=row.partSource;
+      form.partType=row.partType;
+      form.businessCode=row.businessCode;
+      await Update_getcls();
+      console.log(row);
+      let cls = row.clsAttrs;
+      if(cls != null){
+        for(let i=0;i < cls.length; i++){
+          if(cls[i]["Classification"] != null){
+            // 找到了分类的扩展属性
+            let extAttrs = cls[i]["Classification"];
+            // 将扩展属性填到输入框中
+            for(let key in extAttrs){
+              for(let j = 0;j < clsData.value.length;j++){
+                if(clsData.value[j].nameEn == key){
+                  clsData.value[j]["value"] = extAttrs[key];
+                }
+              }
+            }
+            break;
+          }
+        }
+      }
+      
+      
 
-  // 更新部件
-  const updatePart = (row) => {
-    console.log(row);
+    });
+    
+    };
+
+
+// 更新部件
+const updatePart = (row) => {
+
+ 
+  console.log(row);
     let ret = {};
     clsData.value.forEach(attr => {
-      ret[attr.nameEn] = attr.value ?? "";
+      ret[attr.nameEn] = attr.value ?? null;
     });
-    console.log(ret);
-  
+
+    
     request.put("/part/updateAndCheckin", {
-      masterId: clsData.value.partId,
-      name: form.name,
+      masterId: form.partId,
+      number: form.partNumber,
+      name: form.partName,
       partSource: form.partSource,
-      assemblyMode: form.assemblyMode,
+      assemblyMode: form.partType,
       clsAttrs: ret,
-      number: form.number
+      clsNumber:form.businessCode
     }).then((result) => {
-      console.log(result);
+      console.log(result.message);
+      showAdd.value = false;
+
+      if(result.code === 20031){
+        console.log(result);
+        
+        ElMessage.success(result.message)
+      }else{
+        ElMessage.error(result.message)
+        
+      }
       dialogFormVisible.value = false;
-  
       // 更新后刷新表格数据
-      axios.post("http://localhost:8080/part/query")
-        .then((result) => {
-          console.log(result);
-          tableData.value = result.data;
-        });
+      request.post("/part/query", {
+        partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+        partName: (searchForm.partName==="")?null:searchForm.partName
+      }).then((result) => {
+        console.log(result);
+        tableData.value = result.data;
+      });
     });
+
   };
   
+ //撤销修改
+ const undo = (row) => {
+
+  dialogFormVisible.value = false;
+  request.put("/part/undoCheckout?id="+row.partId, {
+     
+    }).then((result) => {
+      console.log(result);
+     
+
+      if(result.code === 60003){
+        console.log(result);
+        
+        ElMessage.success(result.message)
+      }else{
+        ElMessage.error(result.message)
+        
+      }
+      dialogFormVisible.value = false;
+     
+    });
+  
+
+};
+
   // 添加部件
   const addPart = (row) => {
     console.log(row);
