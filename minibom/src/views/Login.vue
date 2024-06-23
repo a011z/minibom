@@ -83,12 +83,10 @@ const register = async()=>{
     // }else{
     // alert('注册失败');
     // }
-    ElMessage.success(result.message)
-    
 
-    // }catch(error){
-    //     ElMessage.error('注册失败');
-    // }
+    ElMessage.success(result.message)
+    isRegister.value=false;
+    clearRegisterData();
 
 }
 
@@ -110,13 +108,14 @@ const login = async ()=>{
     
     //调用接口，完成登录
     let result = await userLoginService(dataToLogin);
-    // if(result.code===0){
-    //     alert(result.msg?result.msg:'登录成功')
-    // }else{
-    //     alert('登录失败')
-    // }
-    //ElMessage.success(result.msg?result.msg : '登录成功')
-    ElMessage.success(result.message)
+    if(result.code===123){
+        ElMessage.success(result.message)
+        // alert(result.message)
+    }else{
+        ElMessage.error(result.message)
+    }
+    
+    console.log(result.message)
     tokenStore.setToken(result.data)
     //路由完成跳转
      router.push('/layout')

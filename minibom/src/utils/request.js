@@ -15,7 +15,7 @@ instance.interceptors.request.use(
         //添加token
         const tokenStore=useTokenStore();
         if(tokenStore){
-            config.headers.Authorization=tokenStore.token
+            config.headers.token=tokenStore.token
         }
         return config;
     },
@@ -25,33 +25,38 @@ instance.interceptors.request.use(
 
     }
 )
-// import { useRouter } from 'vue-router';
-// const router=useRouter();
-// import router from '@/router/index.js';
+import { useRouter } from 'vue-router';
+const router=useRouter();
+
 //添加响应拦截器
-// instance.interceptors.response.use(
-//     result=>{
-//         if(result.data.code===123||result.data.code===116){
-//         return result.data;
-//         }
+instance.interceptors.response.use(
+    result=>{
+        // if(result.data.code===200||result.data.code===116){
+        // ElMessage.success(result.data.message?result.data.message:'服务异常')
+        return result.data;
         
-//         ElMessage.error(result.data.message?result.data.message:'服务异常')
-//         return Promise.reject(result.data)
-//     },
-//     err=>{
+        // }
+        // else{
+        //     ElMessage.error(result.data.message?result.data.message:'服务异常')
+        //     return Promise.reject(result.data)
 
-//         //判断响应状态码
-//         if(err.response.status===401){
-//             ElMessage.error('请先登录')
-//             router.push('/login')
+        // }
 
-//         }else{
-//             ElMessage.error('服务异常')
-//         }
-//         return Promise.reject(err);//异步的状态转化成失败的状态
+    },
+    err=>{
+
+        //判断响应状态码
+        if(err.response.status===401){
+            ElMessage.error('请先登录')
+            router.push('/login')
+
+        }else{
+            ElMessage.error('服务异常')
+        }
+        return Promise.reject(err);//异步的状态转化成失败的状态
 
 
-//     }
-// )
+    }
+)
 
 export default instance;
