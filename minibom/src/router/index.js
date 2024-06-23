@@ -11,7 +11,7 @@ import component from "element-plus/es/components/tree-select/src/tree-select-op
 const routes =[
     {path:'/',redirect:'/login'},
     {path:'/layout',component:LayoutVue},
-    {path:'/bom/bommanage',component:BomManageVue},
+    {path:'/bom',component:BomManageVue},
     {path:'/login',component:LoginVue},
 
     {path:'/login',component:LoginVue},
