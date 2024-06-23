@@ -328,7 +328,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import axios from 'axios';
+
 import BomManage from './bom/BomManage.vue';
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -367,7 +367,11 @@ const searchForm = ref({
 
 
 import { partListService, subPartListService, AddSubpartService, subPartUpdateService, subPartDeleteService,parentListService } from '../api/layout';
-
+import axios from 'axios';
+const request = axios.create({
+  baseURL: '/api'
+  
+});
 
 
 // 用于新增子项(林翰)
@@ -548,142 +552,197 @@ const parent =ref([{
 
 
 
+const showQuery = () => {  
+    request.post("/part/query", {
+      partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+      partName: (searchForm.partName==="")?null:searchForm.partName
+    }).then((result) => {
+      if(result.code === 20041){
+        console.log(result);
+        tableData.value = result.data;
 
+      }else{
 
+        tableData.value = result.data;
+      }
 
+    });
 
-
-// 表单提交处理
-const onSubmit = () => {
-  // 测试数据
-  let result = {
-    "code": 20041,
-    "message": "查询成功",
-    "data": [
-      { "partId": 643938945230446593, "partName": "PART", "partNumber": "Part000000032", "version": "A", "iteration": 4, "partType": "零件", "businessCode": null },
-      { "partId": 10000001, "partName": "华为Mate60Pro", "partNumber": "Part000000033", "version": "A", "iteration": 4, "partType": "零件", "businessCode": null },
-      { "partId": 644609559540797441, "partName": "PART(555555)", "partNumber": "Part000000039", "version": "A", "iteration": 1, "partType": "零件", "businessCode": null },
-      { "partId": 10000002, "partName": "6.8英寸屏幕", "partNumber": "Part000000035", "version": "A", "iteration": 2, "partType": "零件", "businessCode": null }
-    ]
   };
-  console.log(result.data);
-  tableData.value = result.data;
 
-  // 联调阶段的代码
-  axios.post("http://localhost:8080/part/query", {
-    partNumber: searchForm.partNumber,
-    partName: searchForm.partName
-  }).then((result) => {
-    console.log(result);
-    tableData.value = result.data;
-  });
-};
+  // 表单提交处理
+  const onSubmit = () => {  
+    request.post("/part/query", {
+      partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+      partName: (searchForm.partName==="")?null:searchForm.partName
+    }).then((result) => {
+      if(result.code === 20041){
+        console.log(result);
+        tableData.value = result.data;
+        ElMessage.success(result.message)
+      }else{
+        ElMessage.error(result.message)
+        tableData.value = result.data;
+      }
 
-// 查询扩展属性
-const getcls = (e) => {
-  console.log(e);
-  var businessCode1 = addform.businessCode;
-  console.log(businessCode1);
+    });
 
-  // 测试数据
-  let result = {
-    "code": 20041,
-    "message": "查询指定分类结点的全部分类属性 成功",
-    "data": [
-      { "id": "642731228134379525", "name": "宽度", "nameEn": "Width", "description": "宽度", "type": "DECIMAL" },
-      { "id": "642731228134379524", "name": "重量", "nameEn": "Weight", "description": "重量", "type": "DECIMAL" },
-      { "id": "642731228134379523", "name": "长度", "nameEn": "Length", "description": "长度", "type": "DECIMAL" },
-      { "id": "642731228134379522", "name": "型号", "nameEn": "Mode", "description": "型号", "type": "STRING" },
-      { "id": "642731228134379521", "name": "大小", "nameEn": "Size", "description": "大小", "type": "DECIMAL" },
-      { "id": "642731228134379520", "name": "高度/厚度", "nameEn": "Height or thickness", "description": "高度/厚度", "type": "DECIMAL" }
-    ]
   };
-  console.log(result.data);
-  clsData.value = result.data;
+  onSubmit();
+  
+  // 查询扩展属性
+  const getcls = (e) => {
+    console.log(e);
+    var businessCode1 = addform.businessCode;
+    console.log(businessCode1);
+  
+    // 测试数据
+    // let result = {
+    //   "code": 20041,
+    //   "message": "查询指定分类结点的全部分类属性 成功",
+    //   "data": [
+    //     { "id": "642731228134379525", "name": "宽度", "nameEn": "Width", "description": "宽度", "type": "DECIMAL" },
+    //     { "id": "642731228134379524", "name": "重量", "nameEn": "Weight", "description": "重量", "type": "DECIMAL" },
+    //     { "id": "642731228134379523", "name": "长度", "nameEn": "Length", "description": "长度", "type": "DECIMAL" },
+    //     { "id": "642731228134379522", "name": "型号", "nameEn": "Mode", "description": "型号", "type": "STRING" },
+    //     { "id": "642731228134379521", "name": "大小", "nameEn": "Size", "description": "大小", "type": "DECIMAL" },
+    //     { "id": "642731228134379520", "name": "高度/厚度", "nameEn": "Height or thickness", "description": "高度/厚度", "type": "DECIMAL" }
+    //   ]
+    // };
+    // console.log(result.data);
+    // clsData.value = result.data;
+  
+   // 联调阶段的代码
+    request.get(`/part/ClassificationNode/getCategoryNodeInfo?id=${businessCode1}`)
+      .then((result) => {
+        console.log(result);
+        clsData.value = result.data;
+      });
+  };
+  
+  // 删除部件
+  const deletePart = (row) => {
 
-  // 联调阶段的代码
-  // axios.get(`http://localhost:8080/part/ClassificationNode/getCategoryNodeInfo?id=${businessCode1}`)
-  //   .then((result) => {
-  //     console.log(result);
-  //     clsData.value = result.data;
-  //   });
-};
+     ElMessageBox.confirm(
+      '你确认要删除该part吗',
+      '温馨提示',
+      {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+      }
+      ).then(async () => {
+    console.log(row),
+    request.delete(`/part/delete/${row.partId}`)
+      .then((result) => {     
+        if(result.code === 20021){
+          console.log(result);
+          tableData.value = result.data;
+          ElMessage.success(result.message)
+        }else{
+        ElMessage.error(result.message)
+        tableData.value = result.data;
+        }
+      }
+      ) 
+      .catch(() => {
+        ElMessage({
+        type: 'info',
+        message: '用户取消了删除',
+        })
+        })
 
-// 删除部件
-const deletePart = (row) => {
-  console.log(row);
-  axios.delete(`http://localhost:8080/part/delete/${row.partId}`)
-    .then((result) => {
+        // 删除后刷新表格数据
+        // request.post("/part/query", {
+        //   partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+        //   partName: (searchForm.partName==="")?null:searchForm.partName
+        // })
+        //   .then((result) => {
+        //   if(result.code === 20041){
+        //     console.log(result);
+        //     tableData.value = result.data;
+        //     ElMessage.success(result.message)
+        //   }else{
+        //     ElMessage.error(result.message)
+        //     tableData.value = result.data;
+        //   }
+        //   });
+        showQuery();
+      });
+  };
+  
+  // 更新部件
+  const updatePart = (row) => {
+    console.log(row);
+    let ret = {};
+    clsData.value.forEach(attr => {
+      ret[attr.nameEn] = attr.value ?? "";
+    });
+    console.log(ret);
+  
+    axios.put("http://localhost:8080/part/updateAndCheckin", {
+      masterId: clsData.value.partId,
+      name: form.name,
+      partSource: form.partSource,
+      assemblyMode: form.assemblyMode,
+      clsAttrs: ret,
+      number: form.number
+    }).then((result) => {
       console.log(result);
-      tableData.value = result.data;
-
-      // 删除后刷新表格数据
+      dialogFormVisible.value = false;
+  
+      // 更新后刷新表格数据
       axios.post("http://localhost:8080/part/query")
         .then((result) => {
           console.log(result);
           tableData.value = result.data;
         });
     });
-};
+  };
+  
+  // 添加部件
+  const addPart = (row) => {
+    console.log(row);
+    let ret = {};
+    clsData.value.forEach(attr => {
+      ret[attr.nameEn] = attr.value ?? null;
+    });
+    console.log(ret);
+  
+    request.post("/part/create", {
+      name: addform.name,
+      partSource: addform.partSource,
+      assemblyMode: addform.assemblyMode,
+      clsAttrs: ret,
+      number: addform.businessCode
+    }).then((result) => {
+      console.log(result.message);
+      showAdd.value = false;
 
-// 更新部件
-const updatePart = (row) => {
-  console.log(row);
-  let ret = {};
-  clsData.value.forEach(attr => {
-    ret[attr.nameEn] = attr.value ?? "";
-  });
-  console.log(ret);
-
-  axios.put("http://localhost:8080/part/updateAndCheckin", {
-    masterId: clsData.value.partId,
-    name: form.name,
-    partSource: form.partSource,
-    assemblyMode: form.assemblyMode,
-    clsAttrs: ret,
-    number: form.number
-  }).then((result) => {
-    console.log(result);
-    dialogFormVisible.value = false;
-
-    // 更新后刷新表格数据
-    axios.post("http://localhost:8080/part/query")
-      .then((result) => {
+      if(result.code === 20011){
+        console.log(result);
+        
+        ElMessage.success(result.message)
+      }else{
+        ElMessage.error(result.message)
+        
+      }
+  
+      // 添加后刷新表格数据
+      request.post("/part/query", {
+        partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+        partName: (searchForm.partName==="")?null:searchForm.partName
+      }).then((result) => {
         console.log(result);
         tableData.value = result.data;
       });
-  });
-};
-
-// 添加部件
-const addPart = (row) => {
-  console.log(row);
-  let ret = {};
-  clsData.value.forEach(attr => {
-    ret[attr.nameEn] = attr.value ?? "";
-  });
-  console.log(ret);
-
-  axios.post("http://localhost:8080/part/create", {
-    name: addform.name,
-    partSource: addform.partSource,
-    assemblyMode: addform.assemblyMode,
-    clsAttrs: ret,
-    clsnumber: addform.number
-  }).then((result) => {
-    console.log(result);
-    dialogFormVisible.value = false;
-
-    // 添加后刷新表格数据
-    axios.post("http://localhost:8080/part/query", {
-      partNumber: searchForm.partNumber,
-      partName: searchForm.partName
-    }).then((result) => {
-      console.log(result);
-      tableData.value = result.data;
     });
-  });
-};
+  };
+
+
+
+
+
 
 
 
