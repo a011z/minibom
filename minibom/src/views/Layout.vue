@@ -8,9 +8,9 @@
         <el-aside width="230px" style="border: 1px solid #eee">
           <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
             <el-menu :default-openeds="['1', '2']">
-              <el-menu-item index="1-1"><router-link to="/layout">部件管理</router-link></el-menu-item>
-              <el-menu-item index="1-2"><router-link to="/bom">BOM管理</router-link></el-menu-item>
-              <el-menu-item index="1-3"><router-link to="/attribute" title="属性管理">属性管理</router-link></el-menu-item>
+              <el-menu-item index="1-1"><router-link to="/layout">Part&BOM管理</router-link></el-menu-item>
+              <!-- <el-menu-item index="1-2"><router-link to="/bom">BOM管理</router-link></el-menu-item> -->
+              <el-menu-item index="1-2"><router-link to="/attribute" title="属性管理">属性管理</router-link></el-menu-item>
             </el-menu>
           </el-aside>
         </el-aside>
@@ -121,14 +121,15 @@
                     <el-button plain @click="dialogVisible1 = true">新增子项</el-button>
 
                     <!-- 直接跳转到BOM页面 -->
-                    <el-button plain @click="bomList">查看BOM清单</el-button>
+                    <el-button plain @click="dialogVisible4=true">查看BOM清单</el-button>
                     <el-button plain @click=" dialogVisible3 = true">查看父项</el-button>
 
                     <!-- 显示该part的子项 -->
                     <el-table :data="subPartModel" style="width: 100%">
                       <el-table-column label="序号" width="100" type="index"> </el-table-column>
-                      <el-table-column label="编号" prop="bomLinkId"></el-table-column>
-                      <el-table-column label="名称" prop="TargetName"></el-table-column>
+                      <el-table-column label="bomLinkId" prop="bomLinkId"></el-table-column>
+                      <el-table-column label="编号" prop="targetPartMasterId"></el-table-column>
+                      <el-table-column label="名称" prop="targetName"></el-table-column>
                       <el-table-column label="数量" prop="quantity"></el-table-column>
                       <el-table-column label="位号" prop="referenceDesignator"></el-table-column>
 
@@ -198,7 +199,7 @@
                   <template #footer>
                     <span class="dialog-footer">
                       <el-button type="primary" @click="addSubpartModel.quantity = partModel.quantity;
-                      addSubpartModel.referenceDesignator = partModel.referenceDesignator; addSubpartApi">确认</el-button>
+                      addSubpartModel.referenceDesignator = partModel.referenceDesignator; addSubpartApi(addSubpartModel)">确认</el-button>
                       <el-button type="danger" @click="dialogVisible1 = false">取消</el-button>
                     </span>
                   </template>
@@ -207,7 +208,7 @@
 
                 <!-- 修改part子项弹窗 -->
                 <el-dialog v-model="dialogVisible2" title="修改part子项" width="30%">
-                  <el-form :model="subPartModel" :rules="rules" label-width="100px" style="padding-right: 30px">
+                  <el-form :model="subPartModel" label-width="100px" style="padding-right: 30px">
                     <el-form-item label="数量" prop="quantity">
                       <el-input v-model="subPartModel.quantity" minlength="1" maxlength="10"></el-input>
                     </el-form-item>
@@ -225,7 +226,6 @@
 
                 <!-- 查看父项弹窗 -->
                 <el-dialog v-model="dialogVisible3" title="查看父项" width="50%">
-
                   <!-- <el-form :model="parent"> -->
                     <el-table :data="parent" style="width: 100%">
                     <el-table-column label="编号" prop="partId"></el-table-column>
@@ -239,11 +239,14 @@
                   </el-table>
 
                   <!-- </el-form> -->
-            
-
-
-
                 </el-dialog>>
+
+                <!-- 查看BOM清单 -->
+                 <el-dialog v-model="dialogVisible4" title="查看BOM清单" width="50%">
+
+                 </el-dialog>
+
+
 
 
 
@@ -476,17 +479,17 @@ const dialogVisible2 = ref(false)
 const showDialog = (row) => {
   dialogVisible2.value = true;
   title.value = '编辑part子项'
-  //数据拷贝
-  subPartModel.value.amount = row.amount;
-  subPartModel.value.locationTag = row.locationTag;
+  //数据拷贝回显
+  subPartModel.value.quantity = row.quantity;
+  subPartModel.value.referenceDesignator = row.referenceDesignator;
 
   // 扩展enCode属性，传递给后台，完成编辑的修改
-  subPartModel.value.enCode = row.enCode;
+  subPartModel.value.bomLinkId = row.bomLinkId;
 
 }
 
 const updateSubPart = async () => {
-  let result = await subPartUpdateService(partModel.value);
+  let result = await subPartUpdateService(subPartModel.value);
   ElMessage.success(result.msg ? result.msg : '修改成功')
 
   dialogVisible2.value = false;
@@ -512,7 +515,7 @@ const deleteSubPart = (row) => {
   )
     .then(async () => {
       //调用删除接口
-      let result = await subPartDeleteService(row.enCode);
+      let result = await subPartDeleteService(row.bomLinkId);
       ElMessage({
         type: 'success',
         message: '删除成功',
@@ -557,7 +560,7 @@ const postTargetId = (row) => {
   // 切换 isActive 的状态
   row.isActive = !row.isActive;
 
-  if (row.isActive.value) {
+  if (row.isActive) {
         // 如果按钮变为激活状态，执行添加选中项的逻辑
         addSubpartModel.value.targetId = row.partId; // 获取子项的编号
       } else {
@@ -572,9 +575,9 @@ const postTargetId = (row) => {
 
 
 //调用接口，新增子项
-const addSubpartApi = async () => {
+const addSubpartApi = async (addSubpartModel) => {
   //调用接口
-  let result = await AddSubpartService(addSubpartModel.value);
+  let result = await AddSubpartService(addSubpartModel);
   ElMessage.success(result.msg ? result.msg : '新增成功')
 
   dialogVisible1.value = false;
@@ -582,6 +585,11 @@ const addSubpartApi = async () => {
   // bomManageList();
 
 }
+
+
+// 查看BOM清单
+//控制查看BOM清单弹窗
+const dialogVisible4 = ref(false)
 
 
 
@@ -694,14 +702,44 @@ const Update_getcls = async () => {
       }
   
       //点击修改按钮触发
-      const handleRowClick = (row) => {
+      const handleRowClick = async(row) => {
 
-    //调用检出接口
-    request.put("/part/checkout/?id="+row.partId, {
+    // //调用检出接口
+    // request.put("/part/checkout/?id="+row.partId, {
      
-    }).then(async (result) => {
-      console.log(result);
-       //显示对话框
+    // }).then(async (result) => {
+    //   console.log(result);
+    //    //显示对话框
+    //    dialogFormVisible.value = true;
+      
+    //   // 自动填充原来的各种属性值
+    //   form.partId=row.partId;
+    //   form.partNumber=row.partNumber;
+    //   form.partName=row.partName;
+    //   form.partSource=row.partSource;
+    //   form.partType=row.partType;
+    //   form.businessCode=row.businessCode;
+    //   await Update_getcls();
+    //   console.log(row);
+    //   let cls = row.clsAttrs;
+    //   if(cls != null){
+    //     for(let i=0;i < cls.length; i++){
+    //       if(cls[i]["Classification"] != null){
+    //         // 找到了分类的扩展属性
+    //         let extAttrs = cls[i]["Classification"];
+    //         // 将扩展属性填到输入框中
+    //         for(let key in extAttrs){
+    //           for(let j = 0;j < clsData.value.length;j++){
+    //             if(clsData.value[j].nameEn == key){
+    //               clsData.value[j]["value"] = extAttrs[key];
+    //             }
+    //           }
+    //         }
+    //         break;
+    //       }
+    //     }
+    //   }
+    //显示对话框
        dialogFormVisible.value = true;
       
       // 自动填充原来的各种属性值
@@ -729,27 +767,58 @@ const Update_getcls = async () => {
             }
             break;
           }
-        }
-      }
-      
-      
+        }}
 
-    });
+    // });
     
     };
 
 
 // 更新部件
-const updatePart = (row) => {
+const updatePart =  (row) => {
 
- 
+ //调用checkout
+  request.put("/part/checkout?id="+row.partId, {
+     
+    }).then ( async (result) => {
+      console.log(result);
+      console.log(158);
+      form.partId=row.partId;
+      form.partNumber=row.partNumber;
+      form.partName=row.partName;
+      form.partSource=row.partSource;
+      form.partType=row.partType;
+      form.businessCode=row.businessCode;
+      await Update_getcls();
+      console.log(row);
+      let cls = row.clsAttrs;
+      if(cls != null){
+        for(let i=0;i < cls.length; i++){
+          if(cls[i]["Classification"] != null){
+            // 找到了分类的扩展属性
+            let extAttrs = cls[i]["Classification"];
+            // 将扩展属性填到输入框中
+            for(let key in extAttrs){
+              for(let j = 0;j < clsData.value.length;j++){
+                if(clsData.value[j].nameEn == key){
+                  clsData.value[j]["value"] = extAttrs[key];
+                }
+              }
+            }
+            break;
+          }}}
+     
+    });
+  
+
+
   console.log(row);
     let ret = {};
     clsData.value.forEach(attr => {
       ret[attr.nameEn] = attr.value ?? null;
     });
 
-    
+    //检入
     request.put("/part/updateAndCheckin", {
       masterId: form.partId,
       number: form.partNumber,
@@ -787,7 +856,7 @@ const updatePart = (row) => {
  const undo = (row) => {
 
   dialogFormVisible.value = false;
-  request.put("/part/undoCheckout?id="+row.partId, {
+/*   request.put("/part/undoCheckout?id="+row.partId, {
      
     }).then((result) => {
       console.log(result);
@@ -803,7 +872,7 @@ const updatePart = (row) => {
       }
       dialogFormVisible.value = false;
      
-    });
+    }); */
   
 
 };
