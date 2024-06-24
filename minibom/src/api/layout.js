@@ -11,21 +11,20 @@ export const partListService=(partnumber,partname)=>{
         partName: partname
     }
 
-    return request.post('http://localhost:8080/BOMLink/queryPart',params)
+    return request.post('/BOMLink/queryPart',params)
 }
 
 //查询该part的子项
 export const subPartListService=(versionId)=>{
-
-    return request.post('http://localhost:8080/BOMLink/querySonItem',{versionId})
+    console.log(versionId);
+    return request.post('/BOMLink/querySonItem',{versionId})
 }
 
 
 //新增子项
 export const AddSubpartService=(addSubPartModel)=>{    
     console.log(addSubPartModel);
-
-    return request.post('http://localhost:8080/BOMLink/create',addSubPartModel)
+    return request.post('/BOMLink/create',addSubPartModel)
 }
 
 
@@ -37,17 +36,18 @@ export const subPartUpdateService=(subPartModel)=>{//等待参数
         referenceDesignator: subPartModel.referenceDesignator
       };  
 
-    return request.put('http://localhost:8080/BOMLink/update',params)//等待路径
+    return request.put('/BOMLink/update',params)//等待路径
 }
 
 //删除子项
-export const subPartDeleteService=(BOMLinkId)=>{//等待参数id?,具体名字暂时未知
-    return request.delete('http://localhost:8080/BOMLink/delete/id='+BOMLinkId)//等待路径
-}//还需要考虑
+export const subPartDeleteService=(bomLinkId)=>{
+    return request.delete(`/BOMLink/delete/${bomLinkId}`)
+}
 
 
 //查询父项
-export const parentListService=(sourceName)=>{
+export const parentListService=(sonItemId)=>{
+    console.log(sonItemId);
 
-    return request.post('http://localhost:8080/BOMLink/queryParentItem',{sourceName})
+    return request.post('/BOMLink/queryParentItem',{sonItemId})
 }

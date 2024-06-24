@@ -49,7 +49,7 @@
             <el-table-column #default="{ row }" label="操作">
               <!-- 修改的时候同时保存该项id,用于新增子项 -->
               <el-button type="primary" size="mini"
-              @click="handleRowClick(row); getParentList(row.partName);getSubPartList(row.versionId);addSubpartModel.sourceId = row.partNumber;">修改</el-button>
+              @click="handleRowClick(row); getParentList(row.partId);getSubPartList(row.versionId);addSubpartModel.sourceId = row.partId;setVersionId(row.versionId)">修改</el-button>
               <el-button type="danger" style="margin-left: 10px;" size="mini" @click="deletePart(row)">删除</el-button>
             </el-table-column>
           </el-table>
@@ -169,7 +169,8 @@
                       <el-button type="danger" style="margin-left: 50px;">重置</el-button>
                     </el-form-item>
                     <el-table :data="partModel" style="margin-top: 0px;">
-                      <el-table-column label="编号" prop="partNumber"></el-table-column>
+                      <el-table-column label="部件编码" prop="partName"></el-table-column>
+                      <el-table-column label="Master编码" prop="partId"></el-table-column>
                       <el-table-column label="名称" prop="partName"></el-table-column>
                       <el-table-column label="" width="200">
                         <template #default="{ row }">
@@ -199,7 +200,7 @@
                   <template #footer>
                     <span class="dialog-footer">
                       <el-button type="primary" @click="addSubpartModel.quantity = partModel.quantity;
-                      addSubpartModel.referenceDesignator = partModel.referenceDesignator; addSubpartApi(addSubpartModel)">确认</el-button>
+                      addSubpartModel.referenceDesignator = partModel.referenceDesignator; addSubpartApi()">确认</el-button>
                       <el-button type="danger" @click="dialogVisible1 = false">取消</el-button>
                     </span>
                   </template>
@@ -228,8 +229,9 @@
                 <el-dialog v-model="dialogVisible3" title="查看父项" width="50%">
                   <!-- <el-form :model="parent"> -->
                     <el-table :data="parent" style="width: 100%">
-                    <el-table-column label="编号" prop="partId"></el-table-column>
+                    <el-table-column label="部件编号" prop="partNumber"></el-table-column>
                     <el-table-column label="名称" prop="partName"></el-table-column>
+                    <el-table-column label="Master编号" prop="partId"></el-table-column>
                     <el-table-column label="版本" prop="version"></el-table-column>
                     <el-table-column label="迭代次数" prop="iteration"></el-table-column>
                     <el-table-column label="部件类型" prop="partType"></el-table-column>
@@ -438,8 +440,8 @@ const parent =ref([{
 }
 ])
 //查询父项
-const getParentList = async (sourceName) => {
-  let result = await parentListService(sourceName);
+const getParentList = async (sonItemId) => {
+  let result = await parentListService(sonItemId);
   parent.value = result.data;
 }
 getParentList();
@@ -464,11 +466,18 @@ const subPartModel = ref([
   }
 ])
 
+// 创建一个参数保存versionId
+const versionIdState = ref('');
+function setVersionId(newId) {
+  versionIdState.value = newId;
+}
+
+
 const getSubPartList = async (versionId) => {
   let result = await subPartListService(versionId);
   subPartModel.value = result.data;
 }
-getSubPartList();
+getSubPartList(versionIdState.value);
 
 //定义变量，控制标题的展示
 const title = ref('')
@@ -493,8 +502,9 @@ const updateSubPart = async () => {
   ElMessage.success(result.msg ? result.msg : '修改成功')
 
   dialogVisible2.value = false;
-  // //刷新子项列表
-  getSubPartList()
+  // // //刷新子项列表
+  // getSubPartList(useForUpdateSubPartList.versionId)
+  getSubPartList(versionIdState.value);
 
 
 }
@@ -520,8 +530,8 @@ const deleteSubPart = (row) => {
         type: 'success',
         message: '删除成功',
       })
-      //刷新列表
-      // subPartManageList();刷新子项列表
+      getSubPartList(versionIdState.value);
+
 
     })
     .catch(() => {
@@ -530,19 +540,20 @@ const deleteSubPart = (row) => {
         message: '用户取消了删除',
       })
     })
+    
 
 }
 
 
 
 //作为新增子项的数据模型(给后端)
-const addSubpartModel = ref([
+const addSubpartModel = ref(
 {sourceId: '',//父项编码
   targetId: '',//子项编码
   quantity: '',//数量
   referenceDesignator: ''//位号}
 }
-])
+)
 //添加part校验
 const rules = {
   enCode: [
@@ -575,14 +586,19 @@ const postTargetId = (row) => {
 
 
 //调用接口，新增子项
-const addSubpartApi = async (addSubpartModel) => {
-  //调用接口
-  let result = await AddSubpartService(addSubpartModel);
-  ElMessage.success(result.msg ? result.msg : '新增成功')
+const addSubpartApi = async () => {
 
-  dialogVisible1.value = false;
+
+  //调用接口
+  let result = await AddSubpartService(addSubpartModel.value);
+  ElMessage.success(result.message);
+
   //刷新列表
-  // bomManageList();
+  getSubPartList(versionIdState.value);
+  // getSubPartList();
+  dialogVisible1.value = false;
+
+ 
 
 }
 
