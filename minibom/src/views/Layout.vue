@@ -49,7 +49,7 @@
             <el-table-column #default="{ row }" label="操作">
               <!-- 修改的时候同时保存该项id,用于新增子项 -->
               <el-button type="primary" size="mini"
-              @click="handleRowClick(row); addSubpartModel.sourceId = row.partNumber;parentModel.sourceName=row.partName">修改</el-button>
+              @click="handleRowClick(row); getParentList(row.partName);getSubPartList(row.versionId);addSubpartModel.sourceId = row.partNumber;">修改</el-button>
               <el-button type="danger" style="margin-left: 10px;" size="mini" @click="deletePart(row)">删除</el-button>
             </el-table-column>
           </el-table>
@@ -64,7 +64,7 @@
                           <el-collapse-item title="基本属性" name="1">
                               <div class="set">产品：笔记本电脑</div>
 
-                              <el-form-item label="Master编码：" :label-width="formLabelWidth" required>
+                              <el-form-item label="Master编码:" :label-width="formLabelWidth" required>
                                   <el-input v-model="form.partId" autocomplete="false"></el-input>
                                 </el-form-item>
 
@@ -127,10 +127,10 @@
                     <!-- 显示该part的子项 -->
                     <el-table :data="subPartModel" style="width: 100%">
                       <el-table-column label="序号" width="100" type="index"> </el-table-column>
-                      <el-table-column label="编号" prop="enCode"></el-table-column>
-                      <el-table-column label="名称" prop="name"></el-table-column>
-                      <el-table-column label="数量" prop="amount"></el-table-column>
-                      <el-table-column label="位号" prop="locationTag"></el-table-column>
+                      <el-table-column label="编号" prop="bomLinkId"></el-table-column>
+                      <el-table-column label="名称" prop="TargetName"></el-table-column>
+                      <el-table-column label="数量" prop="quantity"></el-table-column>
+                      <el-table-column label="位号" prop="referenceDesignator"></el-table-column>
 
 
                       <el-table-column label="操作" width="100">
@@ -157,25 +157,25 @@
                 <el-dialog v-model="dialogVisible1" title="新增子项" width="70%">
                   <el-form :model="partModel" :rules="rules">
                     <el-form-item label="按编码查询">
-                      <el-input v-model="partModel.enCode" placeholder="按编码查询"></el-input>
+                      <el-input v-model="partModel.partNumber" placeholder="按编码查询"></el-input>
                     </el-form-item>
                     <!-- <el-form-item style="margin-left: 100px;" label="按部件名称"> -->
                     <el-form-item label="按部件名称查询">
-                      <el-input v-model="partModel.name" placeholder="按部件名称查询"></el-input>
+                      <el-input v-model="partModel.partName" placeholder="按部件名称查询"></el-input>
                     </el-form-item>
                     <el-form-item>
-                      <el-button type="primary" style="margin-left: 50px;" @click="getPartList">搜索</el-button>
+                      <el-button type="primary" style="margin-left: 50px;" @click="getPartList(partModel.partNumber,partModel.partName)">搜索</el-button>
                       <el-button type="danger" style="margin-left: 50px;">重置</el-button>
                     </el-form-item>
                     <el-table :data="partModel" style="margin-top: 0px;">
-                      <el-table-column label="编号" prop="enCode"></el-table-column>
-                      <el-table-column label="名称" prop="name"></el-table-column>
-                      <el-table-column label="数量" prop="amount"></el-table-column>
-                      <el-table-column label="位号" prop="locationTag"></el-table-column>
+                      <el-table-column label="编号" prop="partNumber"></el-table-column>
+                      <el-table-column label="名称" prop="partName"></el-table-column>
                       <el-table-column label="" width="200">
                         <template #default="{ row }">
                           <!-- 添加选定项 -->
-                          <el-button @click="postTargetId(row)">添加选定项</el-button>
+                          <el-button 
+                          :class="{'default-style': !row.isActive, 'active-style': row.isActive}"  
+                          @click="postTargetId(row)">添加选定项</el-button>
                         </template>
                       </el-table-column>
                     </el-table>
@@ -187,18 +187,18 @@
                       BOM信息
                     </h1>
                     <el-form-item label="数量">
-                      <el-input v-model="partModel.amount"></el-input>
+                      <el-input v-model="partModel.quantity "></el-input>
                     </el-form-item>
                     <el-form-item label="位号">
-                      <el-input v-model="partModel.locationTag"></el-input>
+                      <el-input v-model="partModel.referenceDesignator "></el-input>
                     </el-form-item>
 
                   </div>
 
                   <template #footer>
                     <span class="dialog-footer">
-                      <el-button type="primary" @click="addSubpartModel.quantity = partModel.amount;
-                      addSubpartModel.referenceDesignator = partModel.locationTag; addSubpartApi">确认</el-button>
+                      <el-button type="primary" @click="addSubpartModel.quantity = partModel.quantity;
+                      addSubpartModel.referenceDesignator = partModel.referenceDesignator; addSubpartApi">确认</el-button>
                       <el-button type="danger" @click="dialogVisible1 = false">取消</el-button>
                     </span>
                   </template>
@@ -208,11 +208,11 @@
                 <!-- 修改part子项弹窗 -->
                 <el-dialog v-model="dialogVisible2" title="修改part子项" width="30%">
                   <el-form :model="subPartModel" :rules="rules" label-width="100px" style="padding-right: 30px">
-                    <el-form-item label="数量" prop="amount">
-                      <el-input v-model="subPartModel.amount" minlength="1" maxlength="10"></el-input>
+                    <el-form-item label="数量" prop="quantity">
+                      <el-input v-model="subPartModel.quantity" minlength="1" maxlength="10"></el-input>
                     </el-form-item>
-                    <el-form-item label="位号" prop="locationTag">
-                      <el-input v-model="subPartModel.locationTag" minlength="1" maxlength="15"></el-input>
+                    <el-form-item label="位号" prop="referenceDesignator">
+                      <el-input v-model="subPartModel.referenceDesignator" minlength="1" maxlength="15"></el-input>
                     </el-form-item>
                   </el-form>
                   <template #footer>
@@ -349,11 +349,14 @@
 
 import BomManage from './bom/BomManage.vue';
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage , ElMessageBox} from 'element-plus';
 import {
   Edit,
   Delete
 } from '@element-plus/icons-vue'
+import axios from 'axios';
+import request from '@/utils/request.js'
+
 
 // 初始化状态
  // 初始化状态
@@ -391,11 +394,7 @@ import {
 
 
 import { partListService, subPartListService, AddSubpartService, subPartUpdateService, subPartDeleteService,parentListService } from '../api/layout';
-import axios from 'axios';
-const request = axios.create({
-  baseURL: '/api'
-  
-});
+
 
 
 // 用于新增子项(林翰)
@@ -408,54 +407,66 @@ const dialogVisible1 = ref(false)
 //添加part数据模型
 const partModel = ref([
   {
-    "enCode": 1,
-    "name": "显示器",
-    "amount": "1",
-    "locationTag": "A01",
-  },
-  {
-    "enCode": 2,
-    "name": "键盘",
-    "amount": "1",
-    "locationTag": "A02",
+  //   "enCode": 1,
+  //   "name": "显示器",
+  //   "amount": "1",
+  //   "locationTag": "A01",
   }
 ])
-
-//条件查询part
-const getPartList = async (partId, partName) => {
-  let result = await partListService(partId, partName);
+const getPartList = async (partNumber, partName) => {
+  let result = await partListService(partNumber, partName);
   partModel.value = result.data;
 }
 getPartList();
 
-const parentModel =ref([
-  {sourceName: ''}
+//控制查看父项弹窗
+const dialogVisible3 = ref(false)
+//定义查看父项的数据模型
+const parent =ref([{
+  "partId":'',
+  "partName":'',
+  "partNumber":'',
+  "version":'',
+  "iteration":'',
+  "partType":'',
+  "partSource":'',
+  "clsAttrs":'',
+  "businessCode":''
+}
 ])
-
 //查询父项
 const getParentList = async (sourceName) => {
   let result = await parentListService(sourceName);
-  partModel.value = result.data;
+  parent.value = result.data;
 }
 getParentList();
+
+
 
 
 //1、查看当前part的子项
 //定义当前part的子项
 const subPartModel = ref([
   {
-    "enCode": 1,
-    "name": "显示器",
-    "amount": "1",
-    "locationTag": "A01",
-  },
-  {
-    "enCode": 2,
-    "name": "键盘",
-    "amount": "1",
-    "locationTag": "A02",
+  //   "enCode": 1,
+  //   "name": "显示器",
+  //   "amount": "1",
+  //   "locationTag": "A01",
+  // },
+  // {
+  //   "enCode": 2,
+  //   "name": "键盘",
+  //   "amount": "1",
+  //   "locationTag": "A02",
   }
 ])
+
+const getSubPartList = async (versionId) => {
+  let result = await subPartListService(versionId);
+  subPartModel.value = result.data;
+}
+getSubPartList();
+
 //定义变量，控制标题的展示
 const title = ref('')
 
@@ -479,15 +490,14 @@ const updateSubPart = async () => {
   ElMessage.success(result.msg ? result.msg : '修改成功')
 
   dialogVisible2.value = false;
-  // //刷新刷新子项列表
-  // bomManageList();
+  // //刷新子项列表
+  getSubPartList()
 
 
 }
 
 
 
-import { ElMessageBox } from 'element-plus'
 //删除part子项
 const deleteSubPart = (row) => {
   //提升用户 确认框
@@ -540,10 +550,26 @@ const rules = {
   ]
 }
 
+
+const isActive = ref(false);
 //新增子项的数据模型
 const postTargetId = (row) => {
-  addSubpartModel.value.targetId = row.enCode;//获取子项的编号
+  // 切换 isActive 的状态
+  row.isActive = !row.isActive;
+
+  if (row.isActive.value) {
+        // 如果按钮变为激活状态，执行添加选中项的逻辑
+        addSubpartModel.value.targetId = row.partId; // 获取子项的编号
+      } else {
+        // 如果按钮变为非激活状态，执行取消选中项的逻辑
+        addSubpartModel.value.targetId = null; // 取消选中
+      }
+
+  // addSubpartModel.value.targetId = row.partId;//获取子项的编号
+
+
 }
+
 
 //调用接口，新增子项
 const addSubpartApi = async () => {
@@ -558,21 +584,11 @@ const addSubpartApi = async () => {
 }
 
 
-//控制查看父项弹窗
-const dialogVisible3 = ref(false)
-//定义查看父项的数据模型
-const parent =ref([{
-  "partId":'',
-  "partName":'',
-  "partNumber":'',
-  "version":'',
-  "iteration":'',
-  "partType":'',
-  "partSource":'',
-  "clsAttrs":'',
-  "businessCode":''
-}
-])
+
+
+
+
+
 
 
 
@@ -619,31 +635,14 @@ const showQuery = () => {
     console.log(e);
     var businessCode1 = addform.businessCode;
     console.log(businessCode1);
-  
-    // 测试数据
-    // let result = {
-    //   "code": 20041,
-    //   "message": "查询指定分类结点的全部分类属性 成功",
-    //   "data": [
-    //     { "id": "642731228134379525", "name": "宽度", "nameEn": "Width", "description": "宽度", "type": "DECIMAL" },
-    //     { "id": "642731228134379524", "name": "重量", "nameEn": "Weight", "description": "重量", "type": "DECIMAL" },
-    //     { "id": "642731228134379523", "name": "长度", "nameEn": "Length", "description": "长度", "type": "DECIMAL" },
-    //     { "id": "642731228134379522", "name": "型号", "nameEn": "Mode", "description": "型号", "type": "STRING" },
-    //     { "id": "642731228134379521", "name": "大小", "nameEn": "Size", "description": "大小", "type": "DECIMAL" },
-    //     { "id": "642731228134379520", "name": "高度/厚度", "nameEn": "Height or thickness", "description": "高度/厚度", "type": "DECIMAL" }
-    //   ]
-    // };
-    // console.log(result.data);
-    // clsData.value = result.data;
-  
-   // 联调阶段的代码
     request.get(`/part/ClassificationNode/getCategoryNodeInfo?id=${businessCode1}`)
       .then((result) => {
         console.log(result);
         clsData.value = result.data;
       });
   };
-  // 修改时查询扩展属性,不绑定鼠标焦点事件，直接在点击修改后调用
+
+// 修改时查询扩展属性,不绑定鼠标焦点事件，直接在点击修改后调用
 const Update_getcls = async () => {
     // console.log(e);
     var businessCode1 = form.businessCode;
@@ -690,13 +689,15 @@ const Update_getcls = async () => {
         type: 'info',
         message: '用户取消了删除',
         })
-        })  
-  }
+        })
+     
+      }
   
-   //点击修改按钮触发
-   const handleRowClick = (row) => {
- //调用检出接口
- request.put("/part/checkout/?id="+row.partId, {
+      //点击修改按钮触发
+      const handleRowClick = (row) => {
+
+    //调用检出接口
+    request.put("/part/checkout/?id="+row.partId, {
      
     }).then(async (result) => {
       console.log(result);
@@ -729,80 +730,84 @@ const Update_getcls = async () => {
             break;
           }
         }
-      }     
+      }
+      
+      
+
     });
+    
     };
+
 
 // 更新部件
 const updatePart = (row) => {
 
  
-console.log(row);
-  let ret = {};
-  clsData.value.forEach(attr => {
-    ret[attr.nameEn] = attr.value ?? null;
-  });
+  console.log(row);
+    let ret = {};
+    clsData.value.forEach(attr => {
+      ret[attr.nameEn] = attr.value ?? null;
+    });
 
+    
+    request.put("/part/updateAndCheckin", {
+      masterId: form.partId,
+      number: form.partNumber,
+      name: form.partName,
+      partSource: form.partSource,
+      assemblyMode: form.partType,
+      clsAttrs: ret,
+      clsNumber:form.businessCode
+    }).then((result) => {
+      console.log(result.message);
+      showAdd.value = false;
+
+      if(result.code === 20031){
+        console.log(result);
+        
+        ElMessage.success(result.message)
+      }else{
+        ElMessage.error(result.message)
+        
+      }
+      dialogFormVisible.value = false;
+      // 更新后刷新表格数据
+      request.post("/part/query", {
+        partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
+        partName: (searchForm.partName==="")?null:searchForm.partName
+      }).then((result) => {
+        console.log(result);
+        tableData.value = result.data;
+      });
+    });
+
+  };
   
-  request.put("/part/updateAndCheckin", {
-    masterId: form.partId,
-    number: form.partNumber,
-    name: form.partName,
-    partSource: form.partSource,
-    assemblyMode: form.partType,
-    clsAttrs: ret,
-    clsNumber:form.businessCode
-  }).then((result) => {
-    console.log(result.message);
-    showAdd.value = false;
+ //撤销修改
+ const undo = (row) => {
 
-    if(result.code === 20031){
-      console.log(result);
-      
-      ElMessage.success(result.message)
-    }else{
-      ElMessage.error(result.message)
-      
-    }
-    dialogFormVisible.value = false;
-    // 更新后刷新表格数据
-    request.post("/part/query", {
-      partNumber: (searchForm.partNumber==="")?null:searchForm.partNumber,
-      partName: (searchForm.partName==="")?null:searchForm.partName
+  dialogFormVisible.value = false;
+  request.put("/part/undoCheckout?id="+row.partId, {
+     
     }).then((result) => {
       console.log(result);
-      tableData.value = result.data;
+     
+
+      if(result.code === 60003){
+        console.log(result);
+        
+        ElMessage.success(result.message)
+      }else{
+        ElMessage.error(result.message)
+        
+      }
+      dialogFormVisible.value = false;
+     
     });
-  });
-
-};
-
-//撤销修改
-const undo = (row) => {
-
-dialogFormVisible.value = false;
-request.put("/part/undoCheckout?id="+row.partId, {
-   
-  }).then((result) => {
-    console.log(result);
-   
-
-    if(result.code === 60003){
-      console.log(result);
-      
-      ElMessage.success(result.message)
-    }else{
-      ElMessage.error(result.message)
-      
-    }
-    dialogFormVisible.value = false;
-   
-  });
-
-
-};
-
   
+
+};
+
   // 添加部件
   const addPart = (row) => {
     console.log(row);
@@ -843,19 +848,17 @@ request.put("/part/undoCheckout?id="+row.partId, {
   };
 
 
-
-
-
-
-
-
-//跳转至bom页面
+  //跳转至bom页面
 const router = useRouter()
 const bomList = () => {
   router.push('/bom/bommanage');
 }
 
-</script>
+
+
+  </script>
+
+
 
 <style scoped>
 .demo-form-inline {
@@ -868,6 +871,18 @@ const bomList = () => {
 
 .set {
   padding: 20px;
+}
+
+.default-style {
+  background-color: #409eff; /* 蓝色 */
+  color: white;
+  border-color: #409eff;
+}
+
+.active-style {
+  background-color: #67c23a; /* 绿色 */
+  color: white;
+  border-color: #67c23a;
 }
 
 </style>

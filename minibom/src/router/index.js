@@ -13,8 +13,6 @@ const routes =[
     {path:'/layout',component:LayoutVue},
     {path:'/bom',component:BomManageVue},
     {path:'/login',component:LoginVue},
-
-    {path:'/login',component:LoginVue},
     {path:'/attribute',component:AttributeVue}
 
 ]
