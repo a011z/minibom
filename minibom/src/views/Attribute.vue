@@ -15,7 +15,17 @@
           </el-aside>
           <el-main style="padding-top: 0px;">
               <!-- 查询表单 -->
-              <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+              <div>
+                <el-radio-group v-model="selectedType">
+                  <el-radio :label="'category'">分类信息查询</el-radio>
+                  <el-input v-model="CategoryForm.nameOrCode" placeholder="请输入关键字" style="width: 300px; margin-left: 1px;" :disabled="selectedType !== 'category'"></el-input>
+                  <el-radio :label="'attribute'" style="margin-left: 100px;">属性信息查询</el-radio>
+                  <el-input v-model="AttributeForm.name" placeholder="请输入关键字" style="width: 300px" :disabled="selectedType !== 'attribute'"></el-input>
+                </el-radio-group>
+              <el-button type="primary" @click="handleSearch" style="margin-left: 10px;">查询</el-button>
+            </div>
+
+              <!-- <el-form :inline="true" :model="searchForm" class="demo-form-inline">
                 <el-form-item label="属性信息查询">
                   <el-input v-model="searchForm.name" placeholder="请输入关键字"></el-input>
                 </el-form-item>
@@ -23,15 +33,17 @@
                   <el-button type="primary" plain style="margin-left: 50px;" @click="AttributeSearch">查询</el-button>
                   <el-button type="primary" plain style="margin-left: 50px;" @click="CreatePage=true">创建</el-button>
                 </el-form-item>
-              </el-form>
+              </el-form> -->
+
+
               <!-- 属性表单 -->
-              <el-table :data="tableData" style="border:1 px">
+             <div v-if="selectedType === 'attribute'">
+              <el-table :data="attributeTable" style="border:1 px">
                 <el-table-column prop="name" label="属性中文名称" width="200"></el-table-column>
                 <el-table-column prop="nameEn" label="属性英文名称" width="200"></el-table-column>
                 <el-table-column prop="description " label="中文描述" width="200"></el-table-column>
                 <el-table-column prop="descriptionEn" label="英文描述" width="200"></el-table-column>
                 <el-table-column prop="category" label="数据类型" width="200"></el-table-column> 
-                
                 <el-table-column label="查看属性所在分类">
                   <template #default="{ row }">
                 <el-button @click="ViewPage=true,AttributeView(row)"><el-icon><View /></el-icon></el-button>
@@ -44,14 +56,40 @@
                   </template>
                 </el-table-column> 
                </el-table>
-                <!-- 属性分类信息 -->
-                <el-table :data="ViewModel">
+              <!-- 属性分类信息 -->
+               <el-table :data="ViewModel">
                 <el-table-column prop="folderBusinessCode" label="分类码" width="200"></el-table-column> 
                 <el-table-column prop="name" label="属性中文名称" width="200"></el-table-column>
                 <el-table-column prop="nameEn" label="属性英文名称" width="200"></el-table-column>
                 <el-table-column prop="folderName" label="分类中文名称" width="200"></el-table-column>
                 <el-table-column prop="folderNameEn" label="分类英文名称" width="200"></el-table-column>
               </el-table>
+            </div>
+
+              <!-- 分类表单 -->
+              <div v-if="selectedType === 'category'">
+              <el-table :data="categoryTable" style="border:1 px">
+                <el-table-column prop="name" label="分类码" width="200"></el-table-column>
+                <el-table-column prop="nameEn" label="分类中文名称" width="200"></el-table-column>
+                <el-table-column prop="description " label="分类英文名称" width="200"></el-table-column>
+                <el-table-column label="操作" >
+                  <template #default="{ row }">
+                    <el-button @click="CategoryUpdateEcho(row)"><el-icon><Edit /></el-icon></el-button>
+                    <el-button @click="CategoryDelete(row)"><el-icon><Delete /></el-icon></el-button>
+                  </template>
+                </el-table-column> 
+               </el-table>
+               <!-- 分类属性信息 -->
+               <el-table :data="AttributeMessage" title="属性信息">
+               <el-table-column prop="name" label="属性中文名称" width="200"></el-table-column>
+                <el-table-column prop="nameEn" label="属性英文名称" width="200"></el-table-column>
+                <el-table-column prop="folderName" label="分类中文名称" width="200"></el-table-column>
+                <el-table-column prop="folderNameEn" label="分类英文名称" width="200"></el-table-column>
+                <el-table-column prop="type" label="数据类型"></el-table-column>
+              </el-table>
+              </div>
+
+   
 
                <!-- 创建窗口 -->
                <el-dialog v-model="CreatePage" title="添加属性" >
@@ -124,14 +162,12 @@
   <script setup>
   
   import { reactive ,ref,computed} from "vue";
-  //搜索栏输入
-  const searchForm=reactive({
+  //属性搜索栏输入
+  const AttributeForm=reactive({
        name: null
   });
 //表单
-  const tableData=ref([
-
-  ])
+  const attributeTable=ref([])
 
 
 
@@ -164,22 +200,6 @@
   //属性查看分类模型
 const ViewModel=ref([])
 
-// 用于存储被点击行的响应式引用
-//const selectedRow = ref(null);
-// 计算属性，用于获取特定的属性值
-// const ViewModel = computed(() => {
-//   if (!selectedRow.value) return [];
-//   const { name, nameEn, folder } = selectedRow.value;
-//   return [
-//     { key: 'name', label: '属性中文名称', value: name },
-//     { key: 'nameEn', label: '属性英文名称', value: nameEn },
-//     { key: 'folderName', label: '分类中文名称', value: folder.name },
-//     { key: 'folderNameEn', label: '分类英文名称', value: folder.nameEn },
-//     { key: 'folderBusinessCode', label: '分类码', value: folder.businessCode }
-//   ];
-// });
-
-
 
 //属性创建窗口
 const CreatePage=ref(false)
@@ -190,27 +210,28 @@ const CreatePage=ref(false)
 
 
 
-import { AttributeSearchService,AttributeCreateService,AttributeUpdateService,AttributeDeleteService }from "@/api/attributeAPI.js"
+import { AttributeSearchService,AttributeCreateService,AttributeUpdateService,AttributeDeleteService,
+  CategorySearchService }from "@/api/attributeAPI.js"
 import { ElMessage ,ElMessageBox} from "element-plus";
 
   //属性搜索
   const AttributeSearch= async()=>{
 
-    const params = String(searchForm.name) // 确保将 name 转为字符串
+    const params = String(AttributeForm.name) // 确保将 name 转为字符串
 
-    
+
     console.log(params)
     // 将 params 对象转为查询字符串
 
 
     let result=(params==="null")?await AttributeSearchService(null): await AttributeSearchService(params);
     console.log(result.data)
-    tableData.value=result.data;
+    attributeTable.value=result.data;
   }
   //获取所有属性
   const getAllAttribute=async()=>{
     let result= await AttributeSearchService(null);
-    tableData.value=result.data;
+    attributeTable.value=result.data;
   }
   getAllAttribute();
 
@@ -279,6 +300,48 @@ const AttributeUpdateEcho=(row)=>{
             })
         })
 }
+
+// 记录当前选中的类型
+const selectedType = ref('category');
+
+// 分类信息搜索
+const CategoryForm = reactive({
+  nameOrCode: null
+});
+//分类表单
+const categoryTable=ref([])
+
+// 查询按钮的处理函数
+const handleSearch = () => {
+  if (selectedType.value === 'category') {
+    // 执行分类信息查询的逻辑
+    console.log('分类信息查询关键字:', CategoryForm.nameOrCode);
+    CategorySearch();
+  } else if (selectedType.value === 'attribute') {
+    // 执行属性信息查询的逻辑
+    console.log('属性信息查询关键字:', AttributeForm.name);
+    AttributeSearch();
+    
+  }
+};
+
+//分类查询
+const CategorySearch=async()=>{
+
+   const params = String(CategoryForm.nameOrCode) // 确保将 name 转为字符串
+    console.log(params)
+    // 将 params 对象转为查询字符串
+
+    let result=(params==="null")?await CategorySearchService(null): await CategorySearchService(params);
+    console.log(result.data)
+    categoryTable.value=result.data;
+
+
+}
+
+
+
+
 
   
   </script>
