@@ -57,3 +57,9 @@ export const bomListService=(params)=>{
     return request.get(`/BOMLink/listQuery/${params}`)
 
 }
+
+//查看版本
+export const versionListService=(partId)=>{
+    return request.post('/partVersion/query',{partId})
+
+}

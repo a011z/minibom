@@ -152,7 +152,18 @@
                 </el-tab-pane>
 
 
-                <el-tab-pane label="版本管理"></el-tab-pane>
+                <el-tab-pane label="版本管理">
+                  <el-table :data="versionModel" style="width: 100%">
+                  <!-- </el-table label ="Master编号" prop="partId"></el-table-column> -->
+                  <el-table-column label="Master编号" prop="partId"></el-table-column>
+                  <el-table-column label="部件编号" prop="partNumber"></el-table-column>
+                  <el-table-column label="版本编号" prop="versionId"></el-table-column>
+                  <el-table-column label="版本" prop="version"></el-table-column>
+                  <el-table-column label="名称" prop="name"></el-table-column>
+
+                  </el-table>
+
+                </el-tab-pane>
 
                 <!--新增子项弹窗-->
                 <el-dialog v-model="dialogVisible1" title="新增子项" width="70%">
@@ -356,7 +367,7 @@
 
 
 
-<script lang="ts"  setup>
+<script setup>
   import { ref, reactive,onMounted, defineProps,watch } from 'vue';
 
 import BomManage from './bom/BomManage.vue';
@@ -405,7 +416,7 @@ import request from '@/utils/request.js'
   
 
 
-import { partListService, subPartListService, AddSubpartService, subPartUpdateService, subPartDeleteService,parentListService,bomListService } from '../api/layout';
+import { partListService, subPartListService, AddSubpartService, subPartUpdateService, subPartDeleteService,parentListService,bomListService, versionListService } from '../api/layout';
 
 
 
@@ -608,6 +619,19 @@ const addSubpartApi = async () => {
  
 
 }
+
+
+//查询part版本
+const versionModel =ref([
+  {
+
+  }
+])
+const getVersionList = async (partId) => {
+  let result = await versionListService(partId);
+  versionModel.value = result.data;
+}
+getVersionList(partId);
 
 
 // 查看BOM清单
