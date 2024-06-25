@@ -71,12 +71,12 @@
               <el-table :data="categoryTable" style="border:1 px">
                 <el-table-column prop="id" label="分类码" width="200">
                   <template #default="{row}">
-                    <el-button type="text" @click="() => openDialog(row, 'id')">{{ row.id }}</el-button>
+                    <el-button type="link" @click="() => openDialog(row, 'id')">{{ row.id }}</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="分类中文名称" width="200">
                 <template #default="{row}">
-                    <el-button type="text" @click="() => openDialog(row, 'name')">{{ row.name }}</el-button>
+                    <el-button type="link" @click="() => openDialog(row, 'name')">{{ row.name }}</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column prop="nameEn" label="分类英文名称" width="200"></el-table-column>
@@ -91,7 +91,7 @@
 
                <!-- 分类属性信息 -->
               <el-dialog v-model="categoryDialog" width="1000" @close="closeDialog">
-                <h3>分类信息</h3>
+                <h3>父节点分类信息</h3>
                 <div class="category-info">
               <div v-for="[key, value] in Object.entries(categoryDetail)" :key="key" title="查看分类" class="category-item">
                 <span class="category-key">{{ key }}:</span>
@@ -398,7 +398,9 @@ const closeDialog=()=>{
 const CategoryDetailSearch=async()=>{
   let result =await CategoryDetailService(selectedRow.value)
   console.log(result.data)
+  if(result.data.parentNode!=null){
   categoryDetail.value=result.data.parentNode;
+}
   console.log(categoryDetail.value)
   categoryDetailTable.value=result.data.attrs
 
