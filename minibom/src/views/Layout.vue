@@ -49,7 +49,7 @@
             <el-table-column #default="{ row }" label="操作">
               <!-- 修改的时候同时保存该项id,用于新增子项 -->
               <el-button type="primary" size="mini"
-              @click="handleRowClick(row); getParentList(row.partId);getSubPartList(row.versionId);addSubpartModel.sourceId = row.partId;setVersionId(row.versionId);seleteIdForTree(row.partId);">修改</el-button>
+              @click="handleRowClick(row); getParentList(row.partId);getSubPartList(row.versionId);addSubpartModel.sourceId = row.partId;setVersionId(row.versionId);seleteIdForTree(row.partId);getVersionList(row.partId)">修改</el-button>
               <el-button type="danger" style="margin-left: 10px;" size="mini" @click="deletePart(row)">删除</el-button>
             </el-table-column>
           </el-table>
@@ -348,10 +348,7 @@
 
 
 
-                <!--小窗“版本管理”---->
-                <el-tab-pane label="版本管理">
-                  版本管理
-                </el-tab-pane>
+              
               </el-tabs>
             </el-form>
 
@@ -636,7 +633,7 @@ const getVersionList = async (partId) => {
   let result = await versionListService(partId);
   versionModel.value = result.data;
 }
-getVersionList(partId);
+getVersionList();
 
 
 // 查看BOM清单
