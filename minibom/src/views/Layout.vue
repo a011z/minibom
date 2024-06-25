@@ -121,7 +121,7 @@
                     <el-button plain @click="dialogVisible1 = true">新增子项</el-button>
 
                     <!-- 直接跳转到BOM页面 -->
-                    <el-button plain @click="dialogVisible4=true,bomListView()">查看BOM清单</el-button>
+                    <el-button plain @click="bomListView()">查看BOM清单</el-button>
                     <el-button plain @click=" dialogVisible3 = true">查看父项</el-button>
 
                     <!-- 显示该part的子项 -->
@@ -256,14 +256,20 @@
 
                 <!-- 查看BOM清单 -->
                  <el-dialog v-model="dialogVisible4" title="查看BOM清单" width="70%">
-                  <template #default>
+                    <el-tree
+                    style="max-width: 600px"
+                    :data="bomData"
+                    :props="props"
+                    
+                    />
+                  <!-- <template #default>
                     <el-table :data="flattenedData" border style="width: 100%">
                       <el-table-column prop="partId" label="Part ID" width="180"></el-table-column>
                       <el-table-column prop="number" label="Number" width="180"></el-table-column>
                       <el-table-column prop="name" label="Name" width="300"></el-table-column>
                       <el-table-column prop="level" label="Level" width="100"></el-table-column>
                     </el-table>
-                  </template>
+                  </template> -->
                  </el-dialog>
 
 
@@ -368,7 +374,7 @@
 
 
 <script setup>
-  import { ref, reactive,onMounted, defineProps,watch } from 'vue';
+  import { ref, reactive,onMounted,watch } from 'vue';
 
 import BomManage from './bom/BomManage.vue';
 import { useRouter } from 'vue-router'
@@ -970,50 +976,54 @@ const bomList = () => {
 //查看bom清单
 
 //bom数据
-const bomData= ref<Part | null>(null)
-const flattenedData = ref<any[]>([]);
+const bomData= ref([])
+
 
 //父节点id
-const parentId =reactive({
-  masterId:null
+const parentId =ref({
+  masterId:""
 })
 
 //给父节点赋值
 const seleteIdForTree=(partId)=>{
-  parentId.masterId=partId;
+  parentId.value.masterId=partId;
+}
+const props= {
+  label:"name",
+  children:"children",
 }
 
-//后端返回bom清单，保存在treedata
+//后端返回bom清单，保存在bomdata
 const bomListView=async()=>{
-  const params = String(parentId.masterId) 
-  console.log(params)
+  const params = String(parentId.value.masterId) 
   let result=await bomListService(params)
 
-  bomData.value=result.data
-  console.log(bomData.value)
-  if (bomData.value) {
-      flattenedData.value = flattenData(bomData.value);
-    }
-}
+  bomData.value=[result.data]
+  dialogVisible4.value=true
 
-// 定义接口
-interface Part {
-  partId: string;
-  number: string;
-  name: string;
-  subParts?: Part[];
-}
-
-// 展平（扁平化）函数
-const flattenData = (data: Part, level = 1): any[] => {
-  const flatList = [{ ...data, level }];
-  if (data.subParts && data.subParts.length > 0) {
-    data.subParts.forEach(subPart => {
-      flatList.push(...flattenData(subPart, level + 1));
-    });
-  }
-  return flatList;
 };
+
+
+
+
+// // 定义接口
+// interface Part {
+//   partId: string;
+//   number: string;
+//   name: string;
+//   subParts?: Part[];
+// }
+
+// // 展平（扁平化）函数
+// const flattenData = (data: Part, level = 1): any[] => {
+//   const flatList = [{ ...data, level }];
+//   if (data.subParts && data.subParts.length > 0) {
+//     data.subParts.forEach(subPart => {
+//       flatList.push(...flattenData(subPart, level + 1));
+//     });
+//   }
+//   return flatList;
+// };
 
 
 

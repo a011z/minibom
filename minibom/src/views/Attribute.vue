@@ -69,9 +69,9 @@
               <!-- 分类表单 -->
               <div v-if="selectedType === 'category'">
               <el-table :data="categoryTable" style="border:1 px">
-                <el-table-column prop="name" label="分类码" width="200"></el-table-column>
-                <el-table-column prop="nameEn" label="分类中文名称" width="200"></el-table-column>
-                <el-table-column prop="description " label="分类英文名称" width="200"></el-table-column>
+                <el-table-column prop="id" label="分类码" width="200"></el-table-column>
+                <el-table-column prop="name" label="分类中文名称" width="200"></el-table-column>
+                <el-table-column prop="nameEn" label="分类英文名称" width="200"></el-table-column>
                 <el-table-column label="操作" >
                   <template #default="{ row }">
                     <el-button @click="CategoryUpdateEcho(row)"><el-icon><Edit /></el-icon></el-button>
@@ -79,6 +79,10 @@
                   </template>
                 </el-table-column> 
                </el-table>
+              </div>
+              <el-dialog >
+
+
                <!-- 分类属性信息 -->
                <el-table :data="AttributeMessage" title="属性信息">
                <el-table-column prop="name" label="属性中文名称" width="200"></el-table-column>
@@ -87,7 +91,8 @@
                 <el-table-column prop="folderNameEn" label="分类英文名称" width="200"></el-table-column>
                 <el-table-column prop="type" label="数据类型"></el-table-column>
               </el-table>
-              </div>
+
+            </el-dialog>
 
    
 
