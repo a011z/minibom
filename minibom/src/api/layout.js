@@ -51,3 +51,9 @@ export const parentListService=(sonItemId)=>{
 
     return request.post('/BOMLink/queryParentItem',{sonItemId})
 }
+//查看bom清单
+export const bomListService=(params)=>{
+
+    return request.get(`/BOMLink/listQuery/${params}`)
+
+}

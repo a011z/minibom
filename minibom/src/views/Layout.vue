@@ -49,7 +49,7 @@
             <el-table-column #default="{ row }" label="操作">
               <!-- 修改的时候同时保存该项id,用于新增子项 -->
               <el-button type="primary" size="mini"
-              @click="handleRowClick(row); getParentList(row.partId);getSubPartList(row.versionId);addSubpartModel.sourceId = row.partId;setVersionId(row.versionId)">修改</el-button>
+              @click="handleRowClick(row); getParentList(row.partId);getSubPartList(row.versionId);addSubpartModel.sourceId = row.partId;setVersionId(row.versionId);seleteIdForTree(row.partId);">修改</el-button>
               <el-button type="danger" style="margin-left: 10px;" size="mini" @click="deletePart(row)">删除</el-button>
             </el-table-column>
           </el-table>
@@ -121,7 +121,7 @@
                     <el-button plain @click="dialogVisible1 = true">新增子项</el-button>
 
                     <!-- 直接跳转到BOM页面 -->
-                    <el-button plain @click="dialogVisible4=true">查看BOM清单</el-button>
+                    <el-button plain @click="dialogVisible4=true,bomListView()">查看BOM清单</el-button>
                     <el-button plain @click=" dialogVisible3 = true">查看父项</el-button>
 
                     <!-- 显示该part的子项 -->
@@ -244,8 +244,15 @@
                 </el-dialog>>
 
                 <!-- 查看BOM清单 -->
-                 <el-dialog v-model="dialogVisible4" title="查看BOM清单" width="50%">
-
+                 <el-dialog v-model="dialogVisible4" title="查看BOM清单" width="70%">
+                  <template #default>
+                    <el-table :data="flattenedData" border style="width: 100%">
+                      <el-table-column prop="partId" label="Part ID" width="180"></el-table-column>
+                      <el-table-column prop="number" label="Number" width="180"></el-table-column>
+                      <el-table-column prop="name" label="Name" width="300"></el-table-column>
+                      <el-table-column prop="level" label="Level" width="100"></el-table-column>
+                    </el-table>
+                  </template>
                  </el-dialog>
 
 
@@ -349,12 +356,12 @@
 
 
 
-<script setup>
-  import { ref, reactive,onMounted } from 'vue';
+<script lang="ts"  setup>
+  import { ref, reactive,onMounted, defineProps,watch } from 'vue';
 
 import BomManage from './bom/BomManage.vue';
 import { useRouter } from 'vue-router'
-import { ElMessage , ElMessageBox} from 'element-plus';
+import { ElMessage , ElMessageBox,ElTree} from 'element-plus';
 import {
   Edit,
   Delete
@@ -398,7 +405,7 @@ import request from '@/utils/request.js'
   
 
 
-import { partListService, subPartListService, AddSubpartService, subPartUpdateService, subPartDeleteService,parentListService } from '../api/layout';
+import { partListService, subPartListService, AddSubpartService, subPartUpdateService, subPartDeleteService,parentListService,bomListService } from '../api/layout';
 
 
 
@@ -605,12 +612,7 @@ const addSubpartApi = async () => {
 
 // 查看BOM清单
 //控制查看BOM清单弹窗
-const dialogVisible4 = ref(false)
-
-
-
-
-
+const dialogVisible4 = ref(false);
 
 
 
@@ -938,6 +940,56 @@ const router = useRouter()
 const bomList = () => {
   router.push('/bom/bommanage');
 }
+
+
+
+//查看bom清单
+
+//bom数据
+const bomData= ref<Part | null>(null)
+const flattenedData = ref<any[]>([]);
+
+//父节点id
+const parentId =reactive({
+  masterId:null
+})
+
+//给父节点赋值
+const seleteIdForTree=(partId)=>{
+  parentId.masterId=partId;
+}
+
+//后端返回bom清单，保存在treedata
+const bomListView=async()=>{
+  const params = String(parentId.masterId) 
+  console.log(params)
+  let result=await bomListService(params)
+
+  bomData.value=result.data
+  console.log(bomData.value)
+  if (bomData.value) {
+      flattenedData.value = flattenData(bomData.value);
+    }
+}
+
+// 定义接口
+interface Part {
+  partId: string;
+  number: string;
+  name: string;
+  subParts?: Part[];
+}
+
+// 展平（扁平化）函数
+const flattenData = (data: Part, level = 1): any[] => {
+  const flatList = [{ ...data, level }];
+  if (data.subParts && data.subParts.length > 0) {
+    data.subParts.forEach(subPart => {
+      flatList.push(...flattenData(subPart, level + 1));
+    });
+  }
+  return flatList;
+};
 
 
 
