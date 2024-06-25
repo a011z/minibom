@@ -246,7 +246,6 @@
                     <el-table-column label="迭代次数" prop="iteration"></el-table-column>
                     <el-table-column label="部件类型" prop="partType"></el-table-column>
                     <el-table-column label="部件来源" prop="partSource"></el-table-column>
-                    <el-table-column label="分类属性" prop="clsAttrs"></el-table-column>
                     <el-table-column label="业务编号" prop="businessCode"></el-table-column>
                   </el-table>
 
@@ -254,7 +253,7 @@
                 </el-dialog>>
 
                 <!-- 查看BOM清单 -->
-                 <el-dialog v-model="dialogVisible4" title="查看BOM清单" width="70%">
+                 <el-drawer v-model="dialogVisible4" title="查看BOM清单" width="70%" class="bom-dialog">
                     <el-tree
                     style="max-width: 600px"
                     :data="bomData"
@@ -269,7 +268,7 @@
                       <el-table-column prop="level" label="Level" width="100"></el-table-column>
                     </el-table>
                   </template> -->
-                 </el-dialog>
+                 </el-drawer>
 
 
 
@@ -1051,6 +1050,12 @@ const bomListView=async()=>{
   color: white;
   border-color: #67c23a;
 }
+/* .bom-dialog {
+  font-size: 20px; /* 调整整个对话框的字体大小 
+}*/
+.bom-dialog .el-tree {
+  font-size: 20px; /* 调整树形组件的字体大小 */
+} 
 
 </style>
 

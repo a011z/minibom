@@ -29,12 +29,17 @@ export const AttributeDeleteService=(params)=>{
 }
 
 export const CategorySearchService=(params)=>{
-    return  request.get('classification/query',{
+    return  request.get('/classification/query',{
         params:
         {
             nameOrCode:params
         }
     }
     )
+}
+
+export const CategoryDetailService=(params)=>{
+    return request.get('/classification/query/details?id='+params)
+
 }
 
