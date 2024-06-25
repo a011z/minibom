@@ -154,7 +154,6 @@
 
                 <el-tab-pane label="版本管理">
                   <el-table :data="versionModel" style="width: 100%">
-                  <!-- </el-table label ="Master编号" prop="partId"></el-table-column> -->
                   <el-table-column label="Master编号" prop="partId"></el-table-column>
                   <el-table-column label="部件编号" prop="partNumber"></el-table-column>
                   <el-table-column label="版本编号" prop="versionId"></el-table-column>
