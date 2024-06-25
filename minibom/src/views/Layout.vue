@@ -179,7 +179,7 @@
                       <el-button type="danger" style="margin-left: 50px;">重置</el-button>
                     </el-form-item>
                     <el-table :data="partModel" style="margin-top: 0px;">
-                      <el-table-column label="部件编码" prop="partName"></el-table-column>
+                      <el-table-column label="部件编码" prop="partNumber"></el-table-column>
                       <el-table-column label="Master编码" prop="partId"></el-table-column>
                       <el-table-column label="名称" prop="partName"></el-table-column>
                       <el-table-column label="" width="200">
