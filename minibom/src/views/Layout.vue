@@ -166,16 +166,16 @@
 
                 <!--新增子项弹窗-->
                 <el-dialog v-model="dialogVisible1" title="新增子项" width="70%">
-                  <el-form :model="partModel" :rules="rules">
+                  <el-form :model="partSearch" :rules="rules">
                     <el-form-item label="按编码查询">
-                      <el-input v-model="partModel.partNumber" placeholder="按编码查询"></el-input>
+                      <el-input v-model="partSearch.partNumber" placeholder="按编码查询"></el-input>
                     </el-form-item>
                     <!-- <el-form-item style="margin-left: 100px;" label="按部件名称"> -->
                     <el-form-item label="按部件名称查询">
-                      <el-input v-model="partModel.partName" placeholder="按部件名称查询"></el-input>
+                      <el-input v-model="partSearch.partName" placeholder="按部件名称查询"></el-input>
                     </el-form-item>
                     <el-form-item>
-                      <el-button type="primary" style="margin-left: 50px;" @click="getPartList(partModel.partNumber,partModel.partName)">搜索</el-button>
+                      <el-button type="primary" style="margin-left: 50px;" @click="getPartList(partSearch.partNumber,partSearch.partName)">搜索</el-button>
                       <el-button type="danger" style="margin-left: 50px;">重置</el-button>
                     </el-form-item>
                     <el-table :data="partModel" style="margin-top: 0px;">
@@ -438,6 +438,12 @@ const partModel = ref([
   //   "locationTag": "A01",
   }
 ])
+// 储存部件的条件查询数据
+const partSearch = ref({
+    partNumber: null,
+    partName: null
+  });
+
 const getPartList = async (partNumber, partName) => {
   let result = await partListService(partNumber, partName);
   partModel.value = result.data;

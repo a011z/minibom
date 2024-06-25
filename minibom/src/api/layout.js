@@ -7,8 +7,8 @@ export const partListService=(partnumber,partname)=>{
     // partNumber=(partnumber==="")?null:partnumber;
     // partName=(partname==="")?null:partname
     const params={
-        partNumber: partnumber,
-        partName: partname
+        partNumber: (partnumber=="")?null:partnumber,
+        partName: (partname=="")?null:partname
     }
 
     return request.post('/BOMLink/queryPart',params)
