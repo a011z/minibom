@@ -69,8 +69,16 @@
               <!-- 分类表单 -->
               <div v-if="selectedType === 'category'">
               <el-table :data="categoryTable" style="border:1 px">
-                <el-table-column prop="id" label="分类码" width="200"></el-table-column>
-                <el-table-column prop="name" label="分类中文名称" width="200"></el-table-column>
+                <el-table-column prop="id" label="分类码" width="200">
+                  <template #default="{row}">
+                    <el-button type="text" @click="() => openDialog(row, 'id')">{{ row.id }}</el-button>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="name" label="分类中文名称" width="200">
+                <template #default="{row}">
+                    <el-button type="text" @click="() => openDialog(row, 'name')">{{ row.name }}</el-button>
+                  </template>
+                </el-table-column>
                 <el-table-column prop="nameEn" label="分类英文名称" width="200"></el-table-column>
                 <el-table-column label="操作" >
                   <template #default="{ row }">
@@ -80,19 +88,28 @@
                 </el-table-column> 
                </el-table>
               </div>
-              <el-dialog >
-
 
                <!-- 分类属性信息 -->
-               <el-table :data="AttributeMessage" title="属性信息">
+              <el-dialog v-model="categoryDialog" width="1000" @close="closeDialog">
+                <h3>分类信息</h3>
+                <div class="category-info">
+              <div v-for="[key, value] in Object.entries(categoryDetail)" :key="key" title="查看分类" class="category-item">
+                <span class="category-key">{{ key }}:</span>
+                <span class="category-value">{{ value }}</span>
+              </div>
+              </div>
+
+              <h3>属性信息</h3>
+               <el-table :data="categoryDetailTable" title="属性信息" class="category-table">
                <el-table-column prop="name" label="属性中文名称" width="200"></el-table-column>
                 <el-table-column prop="nameEn" label="属性英文名称" width="200"></el-table-column>
-                <el-table-column prop="folderName" label="分类中文名称" width="200"></el-table-column>
-                <el-table-column prop="folderNameEn" label="分类英文名称" width="200"></el-table-column>
+                <el-table-column prop="description" label="中文描述" width="200"></el-table-column>
+                <el-table-column prop="descriptionEn" label="英文描述" width="200"></el-table-column>
                 <el-table-column prop="type" label="数据类型"></el-table-column>
               </el-table>
 
-            </el-dialog>
+
+              </el-dialog>
 
    
 
@@ -169,7 +186,7 @@
   import { reactive ,ref,computed} from "vue";
   //属性搜索栏输入
   const AttributeForm=reactive({
-       name: null
+       name: ""
   });
 //表单
   const attributeTable=ref([])
@@ -215,7 +232,7 @@ const CreatePage=ref(false)
 
 
 
-import { AttributeSearchService,AttributeCreateService,AttributeUpdateService,AttributeDeleteService,
+import { AttributeSearchService,AttributeCreateService,AttributeUpdateService,AttributeDeleteService,CategoryDetailService,
   CategorySearchService }from "@/api/attributeAPI.js"
 import { ElMessage ,ElMessageBox} from "element-plus";
 
@@ -229,7 +246,7 @@ import { ElMessage ,ElMessageBox} from "element-plus";
     // 将 params 对象转为查询字符串
 
 
-    let result=(params==="null")?await AttributeSearchService(null): await AttributeSearchService(params);
+    let result=(params==="")?await AttributeSearchService(null): await AttributeSearchService(params);
     console.log(result.data)
     attributeTable.value=result.data;
   }
@@ -311,10 +328,17 @@ const selectedType = ref('category');
 
 // 分类信息搜索
 const CategoryForm = reactive({
-  nameOrCode: null
+  nameOrCode: ""
 });
 //分类表单
 const categoryTable=ref([])
+//分类细节
+const categoryDetail=ref({})
+//分类属性数组
+const categoryDetailTable=ref([])
+
+//分类属性表单
+const categoryDialog=ref(false);
 
 // 查询按钮的处理函数
 const handleSearch = () => {
@@ -337,10 +361,46 @@ const CategorySearch=async()=>{
     console.log(params)
     // 将 params 对象转为查询字符串
 
-    let result=(params==="null")?await CategorySearchService(null): await CategorySearchService(params);
+    let result=(params==="")?await CategorySearchService(null): await CategorySearchService(params);
     console.log(result.data)
     categoryTable.value=result.data;
 
+
+}
+//获取所有属性
+const getAllCategory=async()=>{
+    let result= await CategorySearchService(null);
+    categoryTable.value=result.data;
+  }
+  getAllCategory();
+
+const selectedRow=ref()
+// 打开弹窗的方法
+const openDialog = (row, type) => {
+  if (type === 'id'||type ==='name') {
+     selectedRow.value=row.id;
+     console.log(selectedRow.value)
+     CategoryDetailSearch();
+     categoryDialog.value=true;
+
+
+  }
+};
+
+const closeDialog=()=>{
+  categoryDetail.value={};
+  categoryDetailTable.value=[];
+
+}
+
+
+//分类详细查询
+const CategoryDetailSearch=async()=>{
+  let result =await CategoryDetailService(selectedRow.value)
+  console.log(result.data)
+  categoryDetail.value=result.data.parentNode;
+  console.log(categoryDetail.value)
+  categoryDetailTable.value=result.data.attrs
 
 }
 
@@ -350,20 +410,34 @@ const CategorySearch=async()=>{
 
   
   </script>
-  <!-- <style scoped>
-.el-table {
-  border: 0.5px solid #010101; /* 增加边框宽度和颜色 */
+
+<style scoped>
+
+.category-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 20px;
+  align-items: center;
+  margin-top: 1px;
+}
+
+.category-item {
+  display: contents; /* 使用 display: contents 使得直接子元素被直接放入网格 */
+}
+
+.category-key {
+  font-weight: bold;
+  text-align: left; /* 右对齐 */
+}
+
+.category-value {
+  text-align: left; /* 左对齐 */
+}
+
+
   
-}
 
-.el-table td,
-.el-table th {
-  border-right: 1px solid #020202; /* 单元格右侧边框颜色和宽度 */
-  border-bottom: 1px solid #010101; /* 单元格底部边框颜色和宽度 */
-}
 
-.custom-row {
-  background-color: rgb(6, 6, 6); /* 行背景颜色 */
-}
-</style> -->
+
+</style> 
   
