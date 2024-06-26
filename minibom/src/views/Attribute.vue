@@ -69,9 +69,9 @@
               <!-- 分类表单 -->
               <div v-if="selectedType === 'category'">
               <el-table :data="categoryTable" style="border:1 px">
-                <el-table-column prop="id" label="分类码" width="200">
+                <el-table-column prop="id" label="分类编码" width="200">
                   <template #default="{row}">
-                    <el-button type="link" @click="() => openDialog(row, 'id')">{{ row.id }}</el-button>
+                    <el-button type="link" @click="() => openDialog(row, 'id')">{{ row.businessCode }}</el-button>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="分类中文名称" width="200">
