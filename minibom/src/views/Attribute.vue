@@ -407,7 +407,11 @@ const AttributeDelete = (row) => {
       console.log(idArray); // 打印出转换后的字符串数组
       //用户点击了确认
       let result = await AttributeDeleteService(idArray);
-      ElMessage.success(result.message ? result.message : "删除成功");
+      if(result.code===59999){
+        ElMessage.error(result.message);
+      }else{
+      ElMessage.success(result.message);
+      }
       //再次调用getAllCategory，获取所有文章分类
       getAllAttribute();
     })
