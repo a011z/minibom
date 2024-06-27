@@ -637,8 +637,6 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch } from "vue";
-
-import BomManage from "./bom/BomManage.vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox, ElTree } from "element-plus";
 import { Edit, Delete } from "@element-plus/icons-vue";

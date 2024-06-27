@@ -380,12 +380,17 @@ getAllAttribute();
 const AttributeView = async (row) => {
   let result = await AttributeSearchService(row.name);
   ViewModel.value = result.data;
+  ElMessage.success(result.message);
 };
 //属性创建
 const AttributeCreate=async()=>{
   let result=await AttributeCreateService(AttributeModel.value);
   CreatePage.value=false;
-  ElMessage(result.message);
+  if(result.code===59999){
+  ElMessage.error(result.message);
+  }else{
+    ElMessage.success(result.message);
+  }
   getAllAttribute();
 
 
@@ -493,6 +498,8 @@ const CategorySearch = async () => {
       : await CategorySearchService(params);
   console.log(result.data);
   categoryTable.value = result.data;
+  ElMessage.success(result.message)
+  
 };
 //获取所有属性
 const getAllCategory = async () => {
