@@ -875,9 +875,7 @@ const getVersionList = async (partId) => {
 };
 getVersionList();
 
-// 查看BOM清单
-//控制查看BOM清单弹窗
-const dialogVisible4 = ref(false);
+
 
 const showQuery = () => {
   request
@@ -1188,13 +1186,10 @@ const addPart = (row) => {
     });
 };
 
-//跳转至bom页面
-const router = useRouter();
-const bomList = () => {
-  router.push("/bom/bommanage");
-};
 
-//查看bom清单
+// 查看BOM清单
+//控制查看BOM清单弹窗
+const dialogVisible4 = ref(false);
 
 //bom数据
 const bomData = ref([]);
