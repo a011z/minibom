@@ -1208,6 +1208,8 @@ const parentId = ref({
 const seleteIdForTree = (partId) => {
   parentId.value.masterId = partId;
 };
+
+//节点的属性
 const props = {
   label: "name",
   children: "children",
