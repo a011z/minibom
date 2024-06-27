@@ -385,6 +385,27 @@ const AttributeView = async (row) => {
 const AttributeCreate=async()=>{
   let result=await AttributeCreateService(AttributeModel.value);
   CreatePage.value=false;
+  ElMessage(result.message);
+  getAllAttribute();
+
+
+}
+//属性回显
+const AttributeUpdateEcho=(row)=>{
+  UpdatePage.value=true
+   UpdateModel.value.id=row.id;
+   UpdateModel.value.description=row.description;
+   UpdateModel.value.descriptionEn=row.descriptionEn;
+   console.log(UpdateModel.value.id)
+
+}
+  //属性更改
+  const AttributeUpdate=async()=>{
+    console.log(UpdateModel.value)
+    let result=await AttributeUpdateService(UpdateModel.value);
+    UpdatePage.value=false;
+    getAllAttribute();
+
   if(result.code===59999){
   ElMessage.error(result.message);
   }else{
