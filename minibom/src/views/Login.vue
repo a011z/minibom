@@ -92,15 +92,8 @@ const register = async () => {
             dataToRegister.rePassword = hashedrePassword;
           }
         }
-
         //registerData是响应式对象，获取值需要.value
         let result = await userRegisterService(dataToRegister);
-
-        // if(result.code===0){
-        //     alert(result.msg?result.msg : '注册成功');
-        // }else{
-        // alert('注册失败');
-        // }
         if (result.code === 116) {
           ElMessage.success(result.message);
         } else {

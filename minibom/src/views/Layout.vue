@@ -638,7 +638,6 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from "vue";
 
-import BomManage from "./bom/BomManage.vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox, ElTree } from "element-plus";
 import { Edit, Delete } from "@element-plus/icons-vue";
@@ -690,24 +689,18 @@ import {
 
 //控制新增子项弹窗
 const dialogVisible1 = ref(false);
-
-//控制对当前part的子项进行修改的弹窗
-
-//添加part数据模型
+//添加part数据模型（自动识别）
 const partModel = ref([
-  {
-    //   "enCode": 1,
-    //   "name": "显示器",
-    //   "amount": "1",
-    //   "locationTag": "A01",
-  },
+  {},
 ]);
+
 // 储存部件的条件查询数据
 const partSearch = ref({
   partNumber: null,
   partName: null,
 });
 
+//查询部件信息
 const getPartList = async (partNumber, partName) => {
   let result = await partListService(partNumber, partName);
   partModel.value = result.data;
@@ -738,20 +731,9 @@ const getParentList = async (sonItemId) => {
 getParentList();
 
 //1、查看当前part的子项
-//定义当前part的子项
+//定义当前part的子项（自动识别）
 const subPartModel = ref([
-  {
-    //   "enCode": 1,
-    //   "name": "显示器",
-    //   "amount": "1",
-    //   "locationTag": "A01",
-    // },
-    // {
-    //   "enCode": 2,
-    //   "name": "键盘",
-    //   "amount": "1",
-    //   "locationTag": "A02",
-  },
+  {},
 ]);
 
 // 创建一个参数保存versionId
@@ -848,8 +830,6 @@ const postTargetId = (row) => {
     // 如果按钮变为非激活状态，执行取消选中项的逻辑
     addSubpartModel.value.targetId = null; // 取消选中
   }
-
-  // addSubpartModel.value.targetId = row.partId;//获取子项的编号
 };
 
 //调用接口，新增子项
@@ -1190,26 +1170,21 @@ const addPart = (row) => {
 // 查看BOM清单
 //控制查看BOM清单弹窗
 const dialogVisible4 = ref(false);
-
 //bom数据
 const bomData = ref([]);
-
 //父节点id
 const parentId = ref({
   masterId: "",
 });
-
 //给父节点赋值
 const seleteIdForTree = (partId) => {
   parentId.value.masterId = partId;
 };
-
 //节点的属性
 const props = {
   label: "name",
   children: "children",
 };
-
 //后端返回bom清单，保存在bomdata
 const bomListView = async () => {
   const params = String(parentId.value.masterId);
