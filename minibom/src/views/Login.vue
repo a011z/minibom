@@ -123,7 +123,6 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const tokenStore = useTokenStore();
 const login = async () => {
-  try {
     const dataToLogin = registerData.value;
     if (dataToLogin.password) {
       const hashedPassword = CryptoJs.SHA256(dataToLogin.password).toString();
@@ -134,6 +133,7 @@ const login = async () => {
     let result = await userLoginService(dataToLogin);
     if (result.code === 123) {
       ElMessage.success(result.message);
+      router.push("/layout");
       // alert(result.message)
     } else {
       ElMessage.error(result.message);
@@ -142,10 +142,8 @@ const login = async () => {
     console.log(result.message);
     tokenStore.setToken(result.data);
     //路由完成跳转
-    router.push("/layout");
-  } catch {
-    ElMessage.error("登录失败");
-  }
+
+
 };
 
 //定义函数，清空数据模型的数据
